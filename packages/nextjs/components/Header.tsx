@@ -20,6 +20,14 @@ export const menuLinks: HeaderMenuLink[] = [
     href: "/",
   },
   {
+    label: "Dataset Gallery",
+    href: "/dataset-gallery",
+  },
+  {
+    label: "License Gallery",
+    href: "/license-gallery",
+  },
+  {
     label: "Twitter",
     href: "https://twitter.com/0xleeduckgo",
   },

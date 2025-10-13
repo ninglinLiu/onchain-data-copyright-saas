@@ -1,5 +1,5 @@
 ﻿import { ethers } from "hardhat";
-const fmt = (v: bigint) => `${Number(ethers.formatEther(v)).toFixed(6)} ETH`;
+const fmt = (v: any) => `${ethers.utils.formatEther(v)} ETH`;
 async function main() {
   const [deployer, creator, buyer] = await ethers.getSigners();
   console.log("👤 Deployer:", deployer.address);
@@ -7,17 +7,19 @@ async function main() {
   console.log("👤 Buyer   :", buyer.address);
 
   const Registry = await ethers.getContractFactory("DatasetRegistry");
-  const registry = await Registry.deploy(); await registry.waitForDeployment();
-  console.log("✅ Registry      :", await registry.getAddress());
+  const registry = await Registry.deploy(); 
+  await registry.deployed();
+  console.log("✅ Registry      :", registry.address);
 
   const License = await ethers.getContractFactory("DataLicense");
-  const license = await License.deploy(); await license.waitForDeployment();
-  console.log("✅ LicenseCenter :", await license.getAddress());
+  const license = await License.deploy(); 
+  await license.deployed();
+  console.log("✅ LicenseCenter :", license.address);
 
   const Bodhi = await ethers.getContractFactory("Bodhi1155");
-  const bodhi = await Bodhi.deploy(await registry.getAddress(), await license.getAddress());
-  await bodhi.waitForDeployment();
-  console.log("✅ Bodhi1155     :", await bodhi.getAddress());
+  const bodhi = await Bodhi.deploy(registry.address, license.address);
+  await bodhi.deployed();
+  console.log("✅ Bodhi1155     :", bodhi.address);
 
   const arTxId = "arweave_demo_" + Date.now();
   await (await registry.connect(creator).createDataset(arTxId)).wait();
@@ -33,7 +35,7 @@ async function main() {
   const premint = await bodhi.totalSupply(datasetId);
   console.log("🪙 Premint       :", premint.toString(), "(should be 1e18)");
 
-  const amt = ethers.parseEther("0.10");
+  const amt = ethers.utils.parseEther("0.10");
   const [tb, pb, fb] = await bodhi.getBuyPriceAfterFee(datasetId, amt);
   console.log("💰 Buy preview   -> total:", fmt(tb), "price:", fmt(pb), "fee:", fmt(fb));
   await (await bodhi.connect(buyer).buy(datasetId, amt, { value: tb })).wait();
