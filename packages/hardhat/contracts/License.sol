@@ -33,7 +33,7 @@ contract License is Ownable {
      * @param lt License type enum value
      * @param active Whether this license template is currently active
      */
-    struct LicenseTemplate {
+    struct License {
         uint256 id;
         string name;
         string uri;
@@ -44,8 +44,8 @@ contract License is Ownable {
     /// @dev Next license ID to be assigned (starts from 1)
     uint256 public licenseIndex;
 
-    /// @dev Mapping from license ID to LicenseTemplate struct
-    mapping(uint256 => LicenseTemplate) public licenses;
+    /// @dev Mapping from license ID to License struct
+    mapping(uint256 => License) public licenses;
 
     /// @dev Mapping from dataset ID to license ID
     mapping(uint256 => uint256) public datasetLicense;
@@ -90,7 +90,7 @@ contract License is Ownable {
         id = ++licenseIndex;
         
         // Create and store the license
-        licenses[id] = LicenseTemplate({
+        licenses[id] = License({
             id: id,
             name: name,
             uri: uri,
@@ -119,9 +119,9 @@ contract License is Ownable {
     /**
      * @dev Gets the license bound to a specific dataset
      * @param datasetId The dataset identifier
-     * @return The LicenseTemplate struct for the dataset
+     * @return The License struct for the dataset
      */
-    function getLicenseOf(uint256 datasetId) external view returns (LicenseTemplate memory) {
+    function getLicenseOf(uint256 datasetId) external view returns (License memory) {
         uint256 licenseId = datasetLicense[datasetId];
         require(licenseId > 0, "DataLicense: no license bound to dataset");
         
