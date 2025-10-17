@@ -5,11 +5,11 @@ import "./IBodhi.sol";
 import "./ERC721.sol";
 // bodhi address: 0x2ad82a4e39bac43a54ddfe6f94980aaf0d1409ef
 
-contract ProtocolNFT is ERC721 {
+contract LicenseNFT is ERC721 {
     // Events
-    event ProtocolCreated(uint256 indexed protocolId, string name, string link);
+    event LicenseCreated(uint256 indexed licenseId, string name, string link);
 
-    // Protocol metadata
+    // License metadata
     mapping(uint256 => string) private _names;
     mapping(uint256 => string) private _tokenURI;
     mapping(uint256 => uint256) private _bodhi_ids;
@@ -17,11 +17,11 @@ contract ProtocolNFT is ERC721 {
     mapping(uint256 => string) private _cotent_links;
     uint256 private _nextTokenId;
 
-    constructor() ERC721("Protocol", "PRTCL") {
+    constructor() ERC721("License", "PRTCL") {
         _nextTokenId = 1;
     }
 
-    // if bodhi_id is 0, then the protocol is not bodhi based
+    // if bodhi_id is 0, then the license is not bodhi based
     function mint(address to, string memory name, string memory uri, string memory link, uint256 bodhi_id) external returns (uint256) {
         require(bytes(name).length > 0, "Empty name");
         uint256 tokenId = _nextTokenId++;
@@ -30,7 +30,7 @@ contract ProtocolNFT is ERC721 {
         _cotent_links[tokenId] = link;
         _bodhi_ids[tokenId] = bodhi_id;
         _mint(to, tokenId);
-        emit ProtocolCreated(tokenId, name, link);
+        emit LicenseCreated(tokenId, name, link);
         return tokenId;
     }
 
@@ -41,7 +41,7 @@ contract ProtocolNFT is ERC721 {
 
 
 
-    function getProtocolInfo(uint256 tokenId) external view returns (string memory name, string memory uri,string memory link, uint256 bodhi_id) {
+    function getLicenseInfo(uint256 tokenId) external view returns (string memory name, string memory uri,string memory link, uint256 bodhi_id) {
         require(_ownerOf[tokenId] != address(0), "Token does not exist");
         return (_names[tokenId], _tokenURI[tokenId], _cotent_links[tokenId], _bodhi_ids[tokenId]);
     }
@@ -49,13 +49,13 @@ contract ProtocolNFT is ERC721 {
 
 contract CopyrightNFT is ERC721 {
     // Events
-    event CopyrightCreated(uint256 indexed copyrightId, bytes32 contentHash, string name, uint256 protocolId, string data_link, uint256 bodhi_id);
+    event CopyrightCreated(uint256 indexed copyrightId, bytes32 contentHash, string name, uint256 licenseId, string data_link, uint256 bodhi_id);
 
     // Copyright metadata
     struct CopyrightMetadata {
         bytes32 contentHash;
         string name;
-        uint256 protocolId;
+        uint256 licenseId;
         string data_link;
         uint256 bodhi_id;
     }
@@ -63,11 +63,11 @@ contract CopyrightNFT is ERC721 {
     mapping(uint256 => CopyrightMetadata) private _metadata;
     mapping(uint256 => string) private _tokenURI;
     uint256 private _nextTokenId;
-    ProtocolNFT public immutable protocolContract;
+    LicenseNFT public immutable licenseContract;
     IBodhi public immutable bodhi;
 
-    constructor(address _protocolContract, address _bodhiAddress) ERC721("Copyright", "CPYRT") {
-        protocolContract = ProtocolNFT(_protocolContract);
+    constructor(address _licenseContract, address _bodhiAddress) ERC721("Copyright", "CPYRT") {
+        licenseContract = LicenseNFT(_licenseContract);
         bodhi = IBodhi(_bodhiAddress);
         _nextTokenId = 1;
     }
@@ -78,25 +78,25 @@ contract CopyrightNFT is ERC721 {
         string memory uri,
         bytes32 contentHash,
         string memory name,
-        uint256 protocolId,
+        uint256 licenseId,
         string memory link,
         uint256 bodhi_id
     ) external returns (uint256) {
         require(contentHash != bytes32(0), "Empty hash");
-        require(address(protocolContract).code.length > 0, "Protocol contract not deployed");
-        require(protocolContract.ownerOf(protocolId) != address(0), "Protocol does not exist");
+        require(address(licenseContract).code.length > 0, "License contract not deployed");
+        require(licenseContract.ownerOf(licenseId) != address(0), "License does not exist");
         uint256 tokenId = _nextTokenId++;
         _metadata[tokenId] = CopyrightMetadata({
             contentHash: contentHash,
             name: name,
-            protocolId: protocolId,
+            licenseId: licenseId,
             data_link: link,
             bodhi_id: bodhi_id
         });
 
         _tokenURI[tokenId] = uri;
         _mint(to, tokenId);
-        emit CopyrightCreated(tokenId, contentHash, name, protocolId, link, bodhi_id);
+        emit CopyrightCreated(tokenId, contentHash, name, licenseId, link, bodhi_id);
         return tokenId;
     }
 
@@ -108,7 +108,7 @@ contract CopyrightNFT is ERC721 {
     function getCopyrightInfo(uint256 tokenId) external view returns (
         bytes32 contentHash,
         string memory name,
-        uint256 protocolId,
+        uint256 licenseId,
         string memory data_link,
         uint256 bodhi_id
     ) {
@@ -117,7 +117,7 @@ contract CopyrightNFT is ERC721 {
         return (
             metadata.contentHash,
             metadata.name,
-            metadata.protocolId,
+            metadata.licenseId,
             metadata.data_link,
             metadata.bodhi_id
         );
@@ -125,41 +125,41 @@ contract CopyrightNFT is ERC721 {
 }
 
 contract BodhiBasedCopyright {
-    ProtocolNFT public immutable protocolNFT;
+    LicenseNFT public immutable licenseNFT;
     CopyrightNFT public immutable copyrightNFT;
     
 
     constructor() {
-        // Deploy the Protocol NFT contract
-        protocolNFT = new ProtocolNFT();
+        // Deploy the License NFT contract
+        licenseNFT = new LicenseNFT();
         
-        // Deploy the Copyright NFT contract with Protocol NFT address and Bodhi address
+        // Deploy the Copyright NFT contract with License NFT address and Bodhi address
         copyrightNFT = new CopyrightNFT(
-            address(protocolNFT),
+            address(licenseNFT),
             0x2AD82A4E39Bac43A54DdfE6f94980AAf0D1409eF // Bodhi address
         );
     }
 
     /**
-     * @dev Generate a new protocol NFT
-     * @param _name Name of the protocol
-     * @param _link Link to the protocol documentation
-     * @return protocolId The ID of the newly created protocol NFT
+     * @dev Generate a new license NFT
+     * @param _name Name of the license
+     * @param _link Link to the license documentation
+     * @return licenseId The ID of the newly created license NFT
      */
-    function generateProtocol(
+    function generateLicense(
         string calldata _name,
         string calldata _uri,
         string calldata _link,
         uint256 _bodhiId
     ) external returns (uint256) {
-        return protocolNFT.mint(msg.sender, _name, _uri, _link, _bodhiId);
+        return licenseNFT.mint(msg.sender, _name, _uri, _link, _bodhiId);
     }
 
     /**
      * @dev Generate a new copyright NFT
      * @param _contentHash Hash of the content
      * @param _name Name of the content (optional)
-     * @param _protocolId ID of the protocol to use
+     * @param _licenseId ID of the license to use
      * @param _link Link to the content (optional)
      * @param _bodhiId The Bodhi asset ID (0 if not Bodhi-based)
      * @return copyrightId The ID of the newly created copyright NFT
@@ -167,23 +167,23 @@ contract BodhiBasedCopyright {
     function generateCopyright(
         bytes32 _contentHash,
         string calldata _name,
-        uint256 _protocolId,
+        uint256 _licenseId,
         string calldata _uri,
         string calldata _link,
         uint256 _bodhiId
     ) external returns (uint256) {
-        return copyrightNFT.mint(msg.sender, _uri, _contentHash, _name, _protocolId, _link, _bodhiId);
+        return copyrightNFT.mint(msg.sender, _uri, _contentHash, _name, _licenseId, _link, _bodhiId);
     }
 
     /**
-     * @dev Get protocol information
-     * @param _protocolId The ID of the protocol to query
-     * @return name The name of the protocol
+     * @dev Get license information
+     * @param _licenseId The ID of the license to query
+     * @return name The name of the license
      * @return uri The token URI
-     * @return link The link to the protocol documentation
+     * @return link The link to the license documentation
      */
-    function getProtocol(uint256 _protocolId) external view returns (string memory name, string memory uri, string memory link, uint256 bodhi_id) {
-        (name, uri, link, bodhi_id) = protocolNFT.getProtocolInfo(_protocolId);
+    function getLicense(uint256 _licenseId) external view returns (string memory name, string memory uri, string memory link, uint256 bodhi_id) {
+        (name, uri, link, bodhi_id) = licenseNFT.getLicenseInfo(_licenseId);
     }
 
     /**
@@ -191,14 +191,14 @@ contract BodhiBasedCopyright {
      * @param _copyrightId The ID of the copyright to query
      * @return contentHash The hash of the content
      * @return name The name of the content
-     * @return protocolId The ID of the protocol used
+     * @return licenseId The ID of the license used
      * @return link The link to the content
      * @return bodhi_id The Bodhi asset ID (0 if not Bodhi-based)
      */
     function getCopyright(uint256 _copyrightId) external view returns (
         bytes32 contentHash,
         string memory name,
-        uint256 protocolId,
+        uint256 licenseId,
         string memory link,
         uint256 bodhi_id
     ) {
