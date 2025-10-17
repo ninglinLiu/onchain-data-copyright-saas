@@ -113,3 +113,5 @@ An agent is constructed by 0x04 parts: `basic information, prompts[], on-chain k
 * **内容永存：** Agent, Prompts 和知识数据均为永存数据
 * **乐高式 AI Agent:** 由多方要素像乐高积木一样「自由组合」
 
+
+**Holesky License:** https://holesky.etherscan.io/address/0xe4469bE0e9F64987588bA1D8c2634326074c6b71#code
