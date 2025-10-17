@@ -11,7 +11,8 @@ export type ScaffoldConfig = {
 };
 
 const scaffoldConfig = {
-  targetNetwork: chains.optimism,
+  // Updated to use Holesky testnet for BodhiBasedCopyright contract
+  targetNetwork: chains.holesky,
   // The network where your DApp lives in
   // targetNetwork: {
   //   id: 31337,
