@@ -114,4 +114,14 @@ An agent is constructed by 0x04 parts: `basic information, prompts[], on-chain k
 * **乐高式 AI Agent:** 由多方要素像乐高积木一样「自由组合」
 
 
-**Holesky License:** https://holesky.etherscan.io/address/0xe4469bE0e9F64987588bA1D8c2634326074c6b71#code
+## 4 Deployed Contracts
+
+### Holesky Testnet
+
+**BodhiBasedCopyright (Verified ✅):**  
+https://holesky.etherscan.io/address/0x73da0D133EF544B5107271A36eB30c69f84adcac#code
+
+**License (Verified ✅):**  
+https://holesky.etherscan.io/address/0xc4872863fAFA8116E02004AE2Ea4a375808da312#code
+
+For detailed deployment information, see [DEPLOYMENTS.md](./DEPLOYMENTS.md)
