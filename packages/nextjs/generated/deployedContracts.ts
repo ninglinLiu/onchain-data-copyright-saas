@@ -7,6 +7,145 @@
 //       OnChainBook: {
 //         address: "0x505d9Ae884AC1A7f243152A24E0A1Cbd1d04Cc6C",
 const contracts = {
+  31337: [
+    {
+      chainId: "31337",
+      name: "Hardhat",
+      contracts: {
+        DatasetRegistry: {
+          address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+          abi: [
+            {
+              inputs: [],
+              stateMutability: "nonpayable",
+              type: "constructor",
+            },
+            {
+              anonymous: false,
+              inputs: [
+                { indexed: true, internalType: "uint256", name: "id", type: "uint256" },
+                { indexed: true, internalType: "address", name: "owner", type: "address" },
+                { indexed: false, internalType: "string", name: "arTxId", type: "string" },
+              ],
+              name: "DatasetCreated",
+              type: "event",
+            },
+            {
+              inputs: [{ internalType: "string", name: "arTxId", type: "string" }],
+              name: "createDataset",
+              outputs: [{ internalType: "uint256", name: "id", type: "uint256" }],
+              stateMutability: "nonpayable",
+              type: "function",
+            },
+            {
+              inputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+              name: "datasets",
+              outputs: [
+                { internalType: "uint256", name: "id", type: "uint256" },
+                { internalType: "string", name: "arTxId", type: "string" },
+                { internalType: "address", name: "owner", type: "address" },
+                { internalType: "uint256", name: "createdAt", type: "uint256" },
+              ],
+              stateMutability: "view",
+              type: "function",
+            },
+            {
+              inputs: [],
+              name: "datasetIndex",
+              outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+              stateMutability: "view",
+              type: "function",
+            },
+          ],
+        },
+        DataLicense: {
+          address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+          abi: [
+            {
+              inputs: [],
+              stateMutability: "nonpayable",
+              type: "constructor",
+            },
+            {
+              inputs: [
+                { internalType: "string", name: "name", type: "string" },
+                { internalType: "uint8", name: "lt", type: "uint8" },
+                { internalType: "string", name: "uri", type: "string" },
+              ],
+              name: "createLicense",
+              outputs: [{ internalType: "uint256", name: "id", type: "uint256" }],
+              stateMutability: "nonpayable",
+              type: "function",
+            },
+            {
+              inputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+              name: "licenses",
+              outputs: [
+                { internalType: "uint256", name: "id", type: "uint256" },
+                { internalType: "string", name: "name", type: "string" },
+                { internalType: "string", name: "uri", type: "string" },
+                { internalType: "uint8", name: "lt", type: "uint8" },
+                { internalType: "bool", name: "active", type: "bool" },
+              ],
+              stateMutability: "view",
+              type: "function",
+            },
+            {
+              inputs: [],
+              name: "licenseIndex",
+              outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+              stateMutability: "view",
+              type: "function",
+            },
+          ],
+        },
+        Bodhi1155: {
+          address: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+          abi: [
+            {
+              inputs: [
+                { internalType: "address", name: "_registry", type: "address" },
+                { internalType: "address", name: "_licenseCenter", type: "address" },
+              ],
+              stateMutability: "nonpayable",
+              type: "constructor",
+            },
+            {
+              inputs: [
+                { internalType: "uint256", name: "id", type: "uint256" },
+                { internalType: "uint256", name: "amount", type: "uint256" },
+              ],
+              name: "getBuyPriceAfterFee",
+              outputs: [
+                { internalType: "uint256", name: "total", type: "uint256" },
+                { internalType: "uint256", name: "price", type: "uint256" },
+                { internalType: "uint256", name: "fee", type: "uint256" },
+              ],
+              stateMutability: "view",
+              type: "function",
+            },
+            {
+              inputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+              name: "totalSupply",
+              outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+              stateMutability: "view",
+              type: "function",
+            },
+            {
+              inputs: [
+                { internalType: "address", name: "account", type: "address" },
+                { internalType: "uint256", name: "id", type: "uint256" },
+              ],
+              name: "balanceOf",
+              outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+              stateMutability: "view",
+              type: "function",
+            },
+          ],
+        },
+      },
+    },
+  ],
   10: [
     {
       chainId: "10",
