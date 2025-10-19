@@ -18,6 +18,6 @@
       "~~/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "config/deployedContracts.ts.bak"],
   "exclude": ["node_modules"]
 }

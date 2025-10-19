@@ -28,20 +28,12 @@ export const menuLinks: HeaderMenuLink[] = [
     href: "/license-gallery",
   },
   {
+    label: "Contract Interactor",
+    href: "/debug/BodhiBasedCopyright",
+  },
+  {
     label: "Twitter",
     href: "https://twitter.com/0xleeduckgo",
-  },
-  {
-    label: "Debug",
-    href: "/debug/BodhiBasedAIAgentFactory",
-  },
-  {
-    label: "Contracts",
-    href: "https://optimistic.etherscan.io/address/0xe3de0a0446a962e94c894d9fcdc69cfa1c9e542c#code",
-  },
-  {
-    label: "An Agent Example",
-    href: "https://analyzer.rootmud.xyz/",
   },
 ];
 

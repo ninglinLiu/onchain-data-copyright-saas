@@ -64,11 +64,11 @@ contract CopyrightNFT is ERC721 {
     mapping(uint256 => string) private _tokenURI;
     uint256 private _nextTokenId;
     LicenseNFT public immutable licenseContract;
-    IBodhi public immutable bodhi;
+    // IBodhi public immutable bodhi;
 
-    constructor(address _licenseContract, address _bodhiAddress) ERC721("Copyright", "CPYRT") {
+    constructor(address _licenseContract) ERC721("Copyright", "CPYRT") {
         licenseContract = LicenseNFT(_licenseContract);
-        bodhi = IBodhi(_bodhiAddress);
+        // bodhi = IBodhi(_bodhiAddress);
         _nextTokenId = 1;
     }
 
@@ -135,8 +135,8 @@ contract BodhiBasedCopyright {
         
         // Deploy the Copyright NFT contract with License NFT address and Bodhi address
         copyrightNFT = new CopyrightNFT(
-            address(licenseNFT),
-            0x2AD82A4E39Bac43A54DdfE6f94980AAf0D1409eF // Bodhi address
+            address(licenseNFT)
+            // 0x2AD82A4E39Bac43A54DdfE6f94980AAf0D1409eF // Bodhi address
         );
     }
 

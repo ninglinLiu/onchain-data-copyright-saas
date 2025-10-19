@@ -3,7 +3,7 @@
  */
 
 import { ethers } from 'ethers';
-import { BODHI_BASED_COPYRIGHT_ADDRESS, BODHI_BASED_COPYRIGHT_ABI } from '../config/deployedContracts';
+import { BODHI_BASED_COPYRIGHT_ADDRESS, BODHI_BASED_COPYRIGHT_ABI } from '../config/deployedContracts.ts.bak';
 
 // Holesky RPC endpoint
 const HOLESKY_RPC_URL = 'https://ethereum-holesky-rpc.publicnode.com';

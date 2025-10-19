@@ -11,26 +11,26 @@ export type ScaffoldConfig = {
 
 const scaffoldConfig = {
   targetNetwork: {
-    id: 17000,
-    name: "Holesky",
-    network: "holesky",
+    id: 11155111,
+    name: "Sepolia",
+    network: "sepolia",
     nativeCurrency: {
-      name: "Holesky Ether",
+      name: "Sepolia Ether",
       symbol: "ETH",
       decimals: 18,
     },
     rpcUrls: {
       default: {
-        http: ["https://ethereum-holesky.publicnode.com"],
+        http: ["https://ethereum-sepolia.publicnode.com"],
       },
       public: {
-        http: ["https://ethereum-holesky.publicnode.com"],
+        http: ["https://ethereum-sepolia.publicnode.com"],
       },
     },
     blockExplorers: {
       default: {
         name: "Etherscan",
-        url: "https://holesky.etherscan.io",
+        url: "https://sepolia.etherscan.io",
       },
     },
     testnet: true,

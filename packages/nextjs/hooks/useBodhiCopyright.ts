@@ -4,7 +4,7 @@
 
 import { useState } from 'react';
 import { useContractWrite, useContractRead, useNetwork, useSwitchNetwork } from 'wagmi';
-import { BODHI_BASED_COPYRIGHT_ADDRESS, BODHI_BASED_COPYRIGHT_ABI } from '../config/deployedContracts';
+import { BODHI_BASED_COPYRIGHT_ADDRESS, BODHI_BASED_COPYRIGHT_ABI } from '../config/deployedContracts.ts.bak';
 
 const HOLESKY_CHAIN_ID = 17000;
 

@@ -8,7 +8,7 @@ const LICENSE_OPTIONS = [
     name: "CC0 - No Rights Reserved",
     usage: "Free to use, modify, distribute, and sell without any restrictions",
     profit: "100% profit goes to the user, no royalties required",
-    bodhi_id: 10000,
+    bodhi_id: 15544,
   },
   {
     id: "cc-by",
@@ -201,15 +201,15 @@ const ETHSpace: NextPage = () => {
                     {selectedLicense.name}
                   </h4>
                   <p className="text-sm text-gray-700 dark:text-gray-300">
-                    <b>Usage Terms:</b>
+                    <b>Usage Terms: &nbsp;&nbsp;</b>
                     {selectedLicense.usage}
                   </p>
                   <p className="text-sm text-gray-700 dark:text-gray-300">
-                    <b>Profit Distribution:</b>
+                    <b>Profit Distribution: &nbsp;&nbsp;</b>
                     {selectedLicense.profit}
                   </p>
                   <p className="text-sm text-gray-700 dark:text-gray-300">
-                    <b>Bodhi Link:</b>
+                    <b>See More Details: &nbsp;&nbsp;</b>
                     <a
                       href={`https://bodhi.wtf/${selectedLicense.bodhi_id}`}
                       target="_blank"
@@ -219,6 +219,8 @@ const ETHSpace: NextPage = () => {
                       {`https://bodhi.wtf/${selectedLicense.bodhi_id}`} 🔗
                     </a>
                   </p>
+
+                  {/* TODO: or, do you want to create license by yourself? */}
                 </div>
               </div>
             </div>
