@@ -152,14 +152,14 @@ const contracts = {
       name: "Sepolia",
       contracts: {
         BodhiBasedCopyright: {
-          address: "0xA50033dA548D46D8473721385Ee1A58436144199",
+          address: "0x67064cD4aC122aa28DA6854dF330a96175DE68a7",
           abi: [
             {
               inputs: [
                 {
-                  internalType: "bytes32",
+                  internalType: "string",
                   name: "_contentHash",
-                  type: "bytes32",
+                  type: "string",
                 },
                 {
                   internalType: "string",
@@ -261,13 +261,18 @@ const contracts = {
               name: "getCopyright",
               outputs: [
                 {
-                  internalType: "bytes32",
-                  name: "contentHash",
-                  type: "bytes32",
+                  internalType: "string",
+                  name: "name",
+                  type: "string",
                 },
                 {
                   internalType: "string",
-                  name: "name",
+                  name: "uri",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "contentHash",
                   type: "string",
                 },
                 {
@@ -339,7 +344,7 @@ const contracts = {
           ],
         },
         LicenseNFT: {
-          address: "0xA580DFA074bA7Dfd986e77f89aD6EaF8D4041396",
+          address: "0xaC67520Cb11E2694aF8AB13cBaE1B25f575881E4",
           abi: [
             {
               inputs: [],
@@ -790,7 +795,7 @@ const contracts = {
           ],
         },
         CopyrightNFT: {
-          address: "0x1c25f65F4A8B6d98B289b226d670b0A0D2Ac0804",
+          address: "0xFCAdd9511Ed544414A07a9670f7437125e27dDCf",
           abi: [
             {
               inputs: [
@@ -864,9 +869,9 @@ const contracts = {
                 },
                 {
                   indexed: false,
-                  internalType: "bytes32",
+                  internalType: "string",
                   name: "contentHash",
-                  type: "bytes32",
+                  type: "string",
                 },
                 {
                   indexed: false,
@@ -998,16 +1003,21 @@ const contracts = {
                   type: "uint256",
                 },
               ],
-              name: "getCopyrightInfo",
+              name: "getCopyright",
               outputs: [
-                {
-                  internalType: "bytes32",
-                  name: "contentHash",
-                  type: "bytes32",
-                },
                 {
                   internalType: "string",
                   name: "name",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "uri",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "contentHash",
                   type: "string",
                 },
                 {
@@ -1079,9 +1089,9 @@ const contracts = {
                   type: "string",
                 },
                 {
-                  internalType: "bytes32",
+                  internalType: "string",
                   name: "contentHash",
-                  type: "bytes32",
+                  type: "string",
                 },
                 {
                   internalType: "string",

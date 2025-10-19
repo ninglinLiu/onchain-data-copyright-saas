@@ -49,11 +49,11 @@ contract LicenseNFT is ERC721 {
 
 contract CopyrightNFT is ERC721 {
     // Events
-    event CopyrightCreated(uint256 indexed copyrightId, bytes32 contentHash, string name, uint256 licenseId, string data_link, uint256 bodhi_id);
+    event CopyrightCreated(uint256 indexed copyrightId, string contentHash, string name, uint256 licenseId, string data_link, uint256 bodhi_id);
 
     // Copyright metadata
     struct CopyrightMetadata {
-        bytes32 contentHash;
+        string contentHash;
         string name;
         uint256 licenseId;
         string data_link;
@@ -76,13 +76,12 @@ contract CopyrightNFT is ERC721 {
     function mint(
         address to,
         string memory uri,
-        bytes32 contentHash,
+        string memory contentHash,
         string memory name,
         uint256 licenseId,
         string memory link,
         uint256 bodhi_id
     ) external returns (uint256) {
-        require(contentHash != bytes32(0), "Empty hash");
         require(address(licenseContract).code.length > 0, "License contract not deployed");
         require(licenseContract.ownerOf(licenseId) != address(0), "License does not exist");
         uint256 tokenId = _nextTokenId++;
@@ -105,9 +104,10 @@ contract CopyrightNFT is ERC721 {
         return _tokenURI[id];
     }
 
-    function getCopyrightInfo(uint256 tokenId) external view returns (
-        bytes32 contentHash,
+    function getCopyright(uint256 tokenId) external view returns (
         string memory name,
+        string memory uri,
+        string memory contentHash,
         uint256 licenseId,
         string memory data_link,
         uint256 bodhi_id
@@ -115,8 +115,9 @@ contract CopyrightNFT is ERC721 {
         require(_ownerOf[tokenId] != address(0), "Token does not exist");
         CopyrightMetadata memory metadata = _metadata[tokenId];
         return (
-            metadata.contentHash,
             metadata.name,
+            _tokenURI[tokenId],
+            metadata.contentHash,
             metadata.licenseId,
             metadata.data_link,
             metadata.bodhi_id
@@ -165,7 +166,7 @@ contract BodhiBasedCopyright {
      * @return copyrightId The ID of the newly created copyright NFT
      */
     function generateCopyright(
-        bytes32 _contentHash,
+        string calldata _contentHash,
         string calldata _name,
         uint256 _licenseId,
         string calldata _uri,
@@ -189,19 +190,21 @@ contract BodhiBasedCopyright {
     /**
      * @dev Get copyright information
      * @param _copyrightId The ID of the copyright to query
-     * @return contentHash The hash of the content
      * @return name The name of the content
+      * @return uri The token URI
+    * @return contentHash The hash of the content
      * @return licenseId The ID of the license used
      * @return link The link to the content
      * @return bodhi_id The Bodhi asset ID (0 if not Bodhi-based)
      */
     function getCopyright(uint256 _copyrightId) external view returns (
-        bytes32 contentHash,
         string memory name,
+        string memory uri,
+        string memory contentHash,
         uint256 licenseId,
         string memory link,
         uint256 bodhi_id
     ) {
-        return copyrightNFT.getCopyrightInfo(_copyrightId);
+        return copyrightNFT.getCopyright(_copyrightId);
     }
 }
