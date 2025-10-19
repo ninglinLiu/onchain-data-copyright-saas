@@ -12,7 +12,31 @@ export type ScaffoldConfig = {
 
 const scaffoldConfig = {
   // Updated to use Holesky testnet for BodhiBasedCopyright contract
-  targetNetwork: chains.holesky,
+  targetNetwork: {
+    id: 17000,
+    name: "Holesky",
+    network: "holesky",
+    nativeCurrency: {
+      name: "Holesky Ether",
+      symbol: "ETH",
+      decimals: 18,
+    },
+    rpcUrls: {
+      default: {
+        http: ["https://ethereum-holesky.publicnode.com"],
+      },
+      public: {
+        http: ["https://ethereum-holesky.publicnode.com"],
+      },
+    },
+    blockExplorers: {
+      default: {
+        name: "Etherscan",
+        url: "https://holesky.etherscan.io",
+      },
+    },
+    testnet: true,
+  } as Chain,
   // The network where your DApp lives in
   // targetNetwork: {
   //   id: 31337,

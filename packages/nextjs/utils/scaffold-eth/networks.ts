@@ -19,6 +19,9 @@ export const NETWORKS_EXTRA_DATA: Record<string, TChainAttributes> = {
   [chains.sepolia.id]: {
     color: ["#5f4bb6", "#87ff65"],
   },
+  [17000]: { // Holesky testnet chain ID
+    color: "#0975F6",
+  },
   [chains.goerli.id]: {
     color: "#0975F6",
   },
