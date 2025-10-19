@@ -10,7 +10,6 @@ export type ScaffoldConfig = {
 };
 
 const scaffoldConfig = {
-  // HINT: targetNetwork could be changed here.
   targetNetwork: {
     id: 17000,
     name: "Holesky",
