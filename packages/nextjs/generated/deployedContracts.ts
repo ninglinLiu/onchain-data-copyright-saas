@@ -146,6 +146,378 @@ const contracts = {
       },
     },
   ],
+  17000: [
+    {
+      chainId: "17000",
+      name: "Holesky",
+      contracts: {
+        BodhiBasedCopyright: {
+          address: "0x73da0D133EF544B5107271A36eB30c69f84adcac",
+          abi: [
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "_bodhi",
+                  type: "address"
+                }
+              ],
+              stateMutability: "nonpayable",
+              type: "constructor"
+            },
+            {
+              anonymous: false,
+              inputs: [
+                {
+                  indexed: true,
+                  internalType: "uint256",
+                  name: "assetId",
+                  type: "uint256"
+                },
+                {
+                  indexed: false,
+                  internalType: "uint256",
+                  name: "licenseId",
+                  type: "uint256"
+                },
+                {
+                  indexed: false,
+                  internalType: "string",
+                  name: "name",
+                  type: "string"
+                },
+                {
+                  indexed: false,
+                  internalType: "string",
+                  name: "contentURI",
+                  type: "string"
+                }
+              ],
+              name: "LicenseGenerated",
+              type: "event"
+            },
+            {
+              inputs: [],
+              name: "bodhi",
+              outputs: [
+                {
+                  internalType: "contract IBodhi",
+                  name: "",
+                  type: "address"
+                }
+              ],
+              stateMutability: "view",
+              type: "function"
+            },
+            {
+              inputs: [
+                {
+                  internalType: "string",
+                  name: "_name",
+                  type: "string"
+                },
+                {
+                  internalType: "string",
+                  name: "_contentURI",
+                  type: "string"
+                },
+                {
+                  internalType: "string",
+                  name: "_externalLink",
+                  type: "string"
+                },
+                {
+                  internalType: "uint8",
+                  name: "_licenseType",
+                  type: "uint8"
+                }
+              ],
+              name: "generateLicense",
+              outputs: [
+                {
+                  internalType: "uint256",
+                  name: "",
+                  type: "uint256"
+                }
+              ],
+              stateMutability: "nonpayable",
+              type: "function"
+            },
+            {
+              inputs: [
+                {
+                  internalType: "uint256",
+                  name: "_assetId",
+                  type: "uint256"
+                }
+              ],
+              name: "getLicenseByAssetId",
+              outputs: [
+                {
+                  components: [
+                    {
+                      internalType: "uint256",
+                      name: "id",
+                      type: "uint256"
+                    },
+                    {
+                      internalType: "string",
+                      name: "name",
+                      type: "string"
+                    },
+                    {
+                      internalType: "string",
+                      name: "contentURI",
+                      type: "string"
+                    },
+                    {
+                      internalType: "string",
+                      name: "externalLink",
+                      type: "string"
+                    },
+                    {
+                      internalType: "enum BodhiBasedCopyright.LicenseType",
+                      name: "licenseType",
+                      type: "uint8"
+                    }
+                  ],
+                  internalType: "struct BodhiBasedCopyright.License",
+                  name: "",
+                  type: "tuple"
+                }
+              ],
+              stateMutability: "view",
+              type: "function"
+            },
+            {
+              inputs: [],
+              name: "licenseIndex",
+              outputs: [
+                {
+                  internalType: "uint256",
+                  name: "",
+                  type: "uint256"
+                }
+              ],
+              stateMutability: "view",
+              type: "function"
+            },
+            {
+              inputs: [
+                {
+                  internalType: "uint256",
+                  name: "",
+                  type: "uint256"
+                }
+              ],
+              name: "licenses",
+              outputs: [
+                {
+                  internalType: "uint256",
+                  name: "id",
+                  type: "uint256"
+                },
+                {
+                  internalType: "string",
+                  name: "name",
+                  type: "string"
+                },
+                {
+                  internalType: "string",
+                  name: "contentURI",
+                  type: "string"
+                },
+                {
+                  internalType: "string",
+                  name: "externalLink",
+                  type: "string"
+                },
+                {
+                  internalType: "enum BodhiBasedCopyright.LicenseType",
+                  name: "licenseType",
+                  type: "uint8"
+                }
+              ],
+              stateMutability: "view",
+              type: "function"
+            }
+          ],
+        },
+        License: {
+          address: "0xc4872863fAFA8116E02004AE2Ea4a375808da312",
+          abi: [
+            {
+              inputs: [],
+              stateMutability: "nonpayable",
+              type: "constructor"
+            },
+            {
+              anonymous: false,
+              inputs: [
+                {
+                  indexed: true,
+                  internalType: "uint256",
+                  name: "datasetId",
+                  type: "uint256"
+                },
+                {
+                  indexed: true,
+                  internalType: "uint256",
+                  name: "licenseId",
+                  type: "uint256"
+                }
+              ],
+              name: "LicenseBound",
+              type: "event"
+            },
+            {
+              anonymous: false,
+              inputs: [
+                {
+                  indexed: true,
+                  internalType: "uint256",
+                  name: "id",
+                  type: "uint256"
+                },
+                {
+                  indexed: false,
+                  internalType: "string",
+                  name: "name",
+                  type: "string"
+                },
+                {
+                  indexed: false,
+                  internalType: "enum License.LicenseType",
+                  name: "lt",
+                  type: "uint8"
+                },
+                {
+                  indexed: false,
+                  internalType: "string",
+                  name: "uri",
+                  type: "string"
+                }
+              ],
+              name: "LicenseCreated",
+              type: "event"
+            },
+            {
+              inputs: [
+                {
+                  internalType: "uint256",
+                  name: "datasetId",
+                  type: "uint256"
+                },
+                {
+                  internalType: "uint256",
+                  name: "licenseId",
+                  type: "uint256"
+                }
+              ],
+              name: "bindLicense",
+              outputs: [],
+              stateMutability: "nonpayable",
+              type: "function"
+            },
+            {
+              inputs: [
+                {
+                  internalType: "string",
+                  name: "name",
+                  type: "string"
+                },
+                {
+                  internalType: "enum License.LicenseType",
+                  name: "lt",
+                  type: "uint8"
+                },
+                {
+                  internalType: "string",
+                  name: "uri",
+                  type: "string"
+                }
+              ],
+              name: "createLicense",
+              outputs: [
+                {
+                  internalType: "uint256",
+                  name: "id",
+                  type: "uint256"
+                }
+              ],
+              stateMutability: "nonpayable",
+              type: "function"
+            },
+            {
+              inputs: [],
+              name: "getTotalLicenses",
+              outputs: [
+                {
+                  internalType: "uint256",
+                  name: "",
+                  type: "uint256"
+                }
+              ],
+              stateMutability: "view",
+              type: "function"
+            },
+            {
+              inputs: [],
+              name: "licenseIndex",
+              outputs: [
+                {
+                  internalType: "uint256",
+                  name: "",
+                  type: "uint256"
+                }
+              ],
+              stateMutability: "view",
+              type: "function"
+            },
+            {
+              inputs: [
+                {
+                  internalType: "uint256",
+                  name: "",
+                  type: "uint256"
+                }
+              ],
+              name: "licenses",
+              outputs: [
+                {
+                  internalType: "uint256",
+                  name: "id",
+                  type: "uint256"
+                },
+                {
+                  internalType: "string",
+                  name: "name",
+                  type: "string"
+                },
+                {
+                  internalType: "string",
+                  name: "uri",
+                  type: "string"
+                },
+                {
+                  internalType: "enum License.LicenseType",
+                  name: "lt",
+                  type: "uint8"
+                },
+                {
+                  internalType: "bool",
+                  name: "active",
+                  type: "bool"
+                }
+              ],
+              stateMutability: "view",
+              type: "function"
+            }
+          ],
+        },
+      },
+    },
+  ],
   10: [
     {
       chainId: "10",
