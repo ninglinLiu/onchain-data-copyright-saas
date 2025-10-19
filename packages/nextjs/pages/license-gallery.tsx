@@ -1,132 +1,107 @@
 import { useEffect, useState } from "react";
 import { NextPage } from "next";
-import { useAccount } from "wagmi";
+import ReactMarkdown from "react-markdown";
 import { useScaffoldContractRead } from "~~/hooks/scaffold-eth";
-import { Address } from "~~/components/scaffold-eth";
+import scaffoldConfig from "~~/scaffold.config";
+import { contracts } from "~~/utils/scaffold-eth/contract";
+
+const ArweaveContent = ({ link }: { link: string }) => {
+  const [abstract, setAbstract] = useState<string>("");
+
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        const response = await fetch(link);
+        const text = await response.text();
+        const firstFiveLines = text.split("\n").slice(0, 5).join("\n");
+        setAbstract(firstFiveLines);
+      } catch (error) {
+        console.error("Error fetching Arweave content:", error);
+      }
+    };
+
+    fetchContent();
+  }, [link]);
+
+  if (!abstract) return null;
+
+  return (
+    <div>
+      <span className="text-sm text-gray-600">摘要: &nbsp;&nbsp;</span>
+
+      <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+        <div className="prose prose-sm max-w-none dark:prose-invert">
+          <ReactMarkdown>{abstract}</ReactMarkdown>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 interface License {
   id: number;
   name: string;
   uri: string;
-  licenseType: number;
-  active: boolean;
+  link: string;
+  bodhi_id: number;
   createdAt: number;
 }
 
 const LicenseGallery: NextPage = () => {
-  const { address: connectedAddress } = useAccount();
   const [licenses, setLicenses] = useState<License[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // 读取 license 总数
-  const { data: licenseIndex } = useScaffoldContractRead({
-    contractName: "DataLicense",
-    functionName: "licenseIndex",
+  // Get total license count from contract
+  const { data: nextTokenId, isLoading: isLoadingTokenCount } = useScaffoldContractRead({
+    contractName: "LicenseNFT",
+    functionName: "_nextTokenId",
   });
 
-  // 获取所有 licenses
+  // Calculate total licenses (nextTokenId - 1, since tokenId starts from 1)
+  const totalLicenses = nextTokenId ? Number(nextTokenId) - 1 : 0;
+
+  // 获取所有 licenses，
+  // get linceses by call the contract BodhiBasedCopyright, use the function getLicense one by one by the licenseId, the licenseId is from 1 to totalLicenses
+  // Create individual hooks for first 10 licenses
+  const license1 = useScaffoldContractRead({
+    contractName: "BodhiBasedCopyright",
+    functionName: "getLicense",
+    args: [BigInt(1)],
+  });
+  const license2 = useScaffoldContractRead({
+    contractName: "BodhiBasedCopyright",
+    functionName: "getLicense",
+    args: [BigInt(2)],
+  });
+  // ... add more as needed
+
+  const licenseHooks = [license1, license2];
+
   useEffect(() => {
-    const fetchLicenses = async () => {
-      // 使用模拟数据，避免合约连接问题
-      const mockLicenses: License[] = [
-        {
-          id: 1,
-          name: "MIT License",
-          uri: "https://opensource.org/licenses/MIT",
-          licenseType: 1,
-          active: true,
-          createdAt: Date.now() - 86400000 * 5,
-        },
-        {
-          id: 2,
-          name: "Creative Commons BY-SA 4.0",
-          uri: "https://creativecommons.org/licenses/by-sa/4.0/",
-          licenseType: 2,
-          active: true,
-          createdAt: Date.now() - 86400000 * 4,
-        },
-        {
-          id: 3,
-          name: "Proprietary License",
-          uri: "https://example.com/proprietary-license",
-          licenseType: 0,
-          active: true,
-          createdAt: Date.now() - 86400000 * 3,
-        },
-        {
-          id: 4,
-          name: "Apache License 2.0",
-          uri: "https://www.apache.org/licenses/LICENSE-2.0",
-          licenseType: 1,
-          active: true,
-          createdAt: Date.now() - 86400000 * 2,
-        },
-        {
-          id: 5,
-          name: "GNU GPL v3",
-          uri: "https://www.gnu.org/licenses/gpl-3.0.html",
-          licenseType: 2,
-          active: true,
-          createdAt: Date.now() - 86400000,
-        },
-        {
-          id: 6,
-          name: "BSD 3-Clause License",
-          uri: "https://opensource.org/licenses/BSD-3-Clause",
-          licenseType: 1,
-          active: true,
-          createdAt: Date.now() - 86400000 * 6,
-        },
-        {
-          id: 7,
-          name: "Commercial License",
-          uri: "https://example.com/commercial-license",
-          licenseType: 0,
-          active: false,
-          createdAt: Date.now() - 86400000 * 7,
-        },
-        {
-          id: 8,
-          name: "Creative Commons BY 4.0",
-          uri: "https://creativecommons.org/licenses/by/4.0/",
-          licenseType: 2,
-          active: true,
-          createdAt: Date.now() - 86400000 * 8,
-        },
-      ];
-      
-      setLicenses(mockLicenses);
+    if (!totalLicenses) {
       setLoading(false);
-    };
-
-    fetchLicenses();
-  }, []);
-
-  const getLicenseTypeName = (type: number) => {
-    switch (type) {
-      case 0:
-        return "禁止衍生";
-      case 1:
-        return "完全开放";
-      case 2:
-        return "5% 回流";
-      default:
-        return "未知";
+      return;
     }
-  };
 
-  const getLicenseTypeColor = (type: number) => {
-    switch (type) {
-      case 0:
-        return "bg-red-100 text-red-800";
-      case 1:
-        return "bg-green-100 text-green-800";
-      case 2:
-        return "bg-blue-100 text-blue-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
+    const fetchedLicenses: License[] = licenseHooks
+      .map((hook, index) => {
+        if (!hook.data) return null;
+        const [name, uri, link, bodhi_id] = hook.data;
+        return {
+          id: index + 1,
+          name,
+          uri,
+          link,
+          bodhi_id: Number(bodhi_id),
+          active: true,
+          createdAt: Date.now(),
+        };
+      })
+      .filter((license): license is License => license !== null);
+
+    setLicenses(fetchedLicenses);
+    setLoading(false);
+  }, [totalLicenses, licenseHooks]);
 
   const formatDate = (timestamp: number) => {
     return new Date(timestamp).toLocaleDateString("zh-CN", {
@@ -153,15 +128,64 @@ const LicenseGallery: NextPage = () => {
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-2">📜 License 画廊</h1>
-        <p className="text-gray-600">浏览所有已创建的数据许可证模板</p>
+        <h1 className="text-4xl font-bold mb-2">📜 License 展览馆</h1>
+        <p className="text-gray-600">
+          浏览所有已创建的数据许可证（License）模板，License 是 NFT，并将其内容存储在 Bodhi 上！
+        </p>
+
+        {/* Contract Info */}
+        <div className="mt-6 bg-white rounded-lg shadow-md p-6 border border-gray-200">
+          <h2 className="text-xl font-semibold mb-4">LicenseNFT Contract Info</h2>
+          {(() => {
+            const network = scaffoldConfig.targetNetwork;
+            const contractData = contracts?.[network.id]?.[0]?.contracts?.["LicenseNFT"];
+
+            if (!contractData) {
+              return (
+                <p className="text-red-600">
+                  Contract not found on network: {network.name} (Chain ID: {network.id})
+                </p>
+              );
+            }
+
+            return (
+              <div className="space-y-2">
+                <div>
+                  <span className="font-semibold">Contract Address: </span>
+                  <code className="ml-2 text-sm bg-gray-100 px-2 py-1 rounded">{contractData.address}</code>
+                </div>
+                <div>
+                  <span className="font-semibold">Network: </span>
+                  <span className="ml-2">{network.name}</span>
+                </div>
+                <div>
+                  <span className="font-semibold">Chain ID: </span>
+                  <span className="ml-2">{network.id}</span>
+                </div>
+                <div className="mt-4">
+                  <a
+                    href={`${network.blockExplorers?.default.url}/address/${contractData.address}#code`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-800 underline"
+                  >
+                    View on {network.blockExplorers?.default.name} 🔍
+                  </a>
+                </div>
+              </div>
+            );
+          })()}
+        </div>
+
         <div className="mt-4 flex items-center gap-4">
-          <span className="text-sm text-gray-500">总计: {licenses.length} 个许可证</span>
-          {connectedAddress && (
-            <span className="text-sm text-gray-500">
-              已连接: <Address address={connectedAddress} />
-            </span>
-          )}
+          <div className="flex items-center space-x-2">
+            <span className="text-sm text-gray-500">链上许可证总数:</span>
+            {isLoadingTokenCount ? (
+              <div className="animate-pulse bg-gray-200 rounded h-4 w-8"></div>
+            ) : (
+              <span className="text-sm font-semibold text-primary">{totalLicenses}</span>
+            )}
+          </div>
         </div>
       </div>
 
@@ -178,8 +202,21 @@ const LicenseGallery: NextPage = () => {
               className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-gray-200"
             >
               {/* License Image/Icon */}
-              <div className="bg-gradient-to-br from-purple-400 to-indigo-600 h-48 flex items-center justify-center">
-                <div className="text-white text-6xl">📜</div>
+              <div className="bg-gradient-to-br from-purple-400 to-indigo-600 h-48 relative overflow-hidden">
+                {license.uri ? (
+                  <img
+                    src={license.uri}
+                    alt={license.name}
+                    className="w-full h-full object-cover"
+                    onError={e => {
+                      e.currentTarget.src = "/assets/placeholder.svg";
+                    }}
+                  />
+                ) : (
+                  <div className="flex items-center justify-center h-full">
+                    <div className="text-white text-6xl">📜</div>
+                  </div>
+                )}
               </div>
 
               {/* License Info */}
@@ -187,33 +224,10 @@ const LicenseGallery: NextPage = () => {
                 {/* License Name */}
                 <h3 className="text-xl font-bold mb-2 truncate">{license.name}</h3>
 
-                {/* License Type Badge */}
-                <div className="mb-3">
-                  <span
-                    className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${getLicenseTypeColor(
-                      license.licenseType,
-                    )}`}
-                  >
-                    {getLicenseTypeName(license.licenseType)}
-                  </span>
-                </div>
-
                 {/* License ID */}
                 <div className="mb-2">
                   <span className="text-sm text-gray-600">License ID:</span>
                   <span className="ml-2 text-sm font-mono font-semibold">#{license.id}</span>
-                </div>
-
-                {/* Status */}
-                <div className="mb-2">
-                  <span className="text-sm text-gray-600">状态:</span>
-                  <span
-                    className={`ml-2 text-sm font-semibold ${
-                      license.active ? "text-green-600" : "text-red-600"
-                    }`}
-                  >
-                    {license.active ? "✓ 活跃" : "✗ 未激活"}
-                  </span>
                 </div>
 
                 {/* Created Time */}
@@ -222,25 +236,21 @@ const LicenseGallery: NextPage = () => {
                   <span className="ml-2 text-sm">{formatDate(license.createdAt)}</span>
                 </div>
 
-                {/* URI */}
-                {license.uri && (
-                  <div className="mb-4">
-                    <span className="text-sm text-gray-600">URI:</span>
-                    <a
-                      href={license.uri}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="ml-2 text-sm text-blue-600 hover:text-blue-800 truncate block"
-                    >
-                      {license.uri.length > 30 ? `${license.uri.slice(0, 30)}...` : license.uri}
-                    </a>
-                  </div>
-                )}
+                {/* Abstract */}
+                {license.link?.startsWith("https://arweave.net/") && <ArweaveContent link={license.link} />}
 
-                {/* Action Button */}
-                <button className="w-full mt-4 bg-primary hover:bg-primary-focus text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200">
-                  查看详情
-                </button>
+                {/* Details */}
+                <div className="mb-4">
+                  <span className="text-sm text-gray-600">查看详情:</span>
+                  <a
+                    href={`https://bodhi.wtf/${license.bodhi_id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="ml-2 text-sm text-blue-600 hover:text-blue-800 truncate block"
+                  >
+                    {license.bodhi_id}
+                  </a>
+                </div>
               </div>
             </div>
           ))}
@@ -265,9 +275,9 @@ const LicenseGallery: NextPage = () => {
           </div>
           <div className="flex items-start gap-3">
             <span className="inline-block px-3 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-800">
-              5% 回流
+              部分回流
             </span>
-            <p className="text-sm text-gray-600">允许衍生作品，但 5% 收益回流给原作者</p>
+            <p className="text-sm text-gray-600">允许衍生作品，但部分收益回流给原作者</p>
           </div>
         </div>
       </div>
@@ -276,4 +286,3 @@ const LicenseGallery: NextPage = () => {
 };
 
 export default LicenseGallery;
-

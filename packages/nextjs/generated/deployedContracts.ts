@@ -152,7 +152,7 @@ const contracts = {
       name: "Sepolia",
       contracts: {
         BodhiBasedCopyright: {
-          address: "0xE25827DedD435aD3C4B90bD5BaBEf3CF462884Be",
+          address: "0xA50033dA548D46D8473721385Ee1A58436144199",
           abi: [
             {
               inputs: [
@@ -339,7 +339,7 @@ const contracts = {
           ],
         },
         LicenseNFT: {
-          address: "0x967aC7c0E473e10253fAb80EA429a5d310f92FE5",
+          address: "0xA580DFA074bA7Dfd986e77f89aD6EaF8D4041396",
           abi: [
             {
               inputs: [],
@@ -445,6 +445,19 @@ const contracts = {
               ],
               name: "Transfer",
               type: "event",
+            },
+            {
+              inputs: [],
+              name: "_nextTokenId",
+              outputs: [
+                {
+                  internalType: "uint256",
+                  name: "",
+                  type: "uint256",
+                },
+              ],
+              stateMutability: "view",
+              type: "function",
             },
             {
               inputs: [
@@ -777,493 +790,506 @@ const contracts = {
           ],
         },
         CopyrightNFT: {
-          address: "0x198aCf4cAf4c9F62D3a571D7fbF8c17f90c2B92C",
+          address: "0x1c25f65F4A8B6d98B289b226d670b0A0D2Ac0804",
           abi: [
             {
-              "inputs": [
+              inputs: [
                 {
-                  "internalType": "address",
-                  "name": "_licenseContract",
-                  "type": "address"
-                }
+                  internalType: "address",
+                  name: "_licenseContract",
+                  type: "address",
+                },
               ],
-              "stateMutability": "nonpayable",
-              "type": "constructor"
+              stateMutability: "nonpayable",
+              type: "constructor",
             },
             {
-              "anonymous": false,
-              "inputs": [
+              anonymous: false,
+              inputs: [
                 {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "owner",
-                  "type": "address"
+                  indexed: true,
+                  internalType: "address",
+                  name: "owner",
+                  type: "address",
                 },
                 {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "spender",
-                  "type": "address"
+                  indexed: true,
+                  internalType: "address",
+                  name: "spender",
+                  type: "address",
                 },
                 {
-                  "indexed": true,
-                  "internalType": "uint256",
-                  "name": "id",
-                  "type": "uint256"
-                }
+                  indexed: true,
+                  internalType: "uint256",
+                  name: "id",
+                  type: "uint256",
+                },
               ],
-              "name": "Approval",
-              "type": "event"
+              name: "Approval",
+              type: "event",
             },
             {
-              "anonymous": false,
-              "inputs": [
+              anonymous: false,
+              inputs: [
                 {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "owner",
-                  "type": "address"
+                  indexed: true,
+                  internalType: "address",
+                  name: "owner",
+                  type: "address",
                 },
                 {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "operator",
-                  "type": "address"
+                  indexed: true,
+                  internalType: "address",
+                  name: "operator",
+                  type: "address",
                 },
                 {
-                  "indexed": false,
-                  "internalType": "bool",
-                  "name": "approved",
-                  "type": "bool"
-                }
+                  indexed: false,
+                  internalType: "bool",
+                  name: "approved",
+                  type: "bool",
+                },
               ],
-              "name": "ApprovalForAll",
-              "type": "event"
+              name: "ApprovalForAll",
+              type: "event",
             },
             {
-              "anonymous": false,
-              "inputs": [
+              anonymous: false,
+              inputs: [
                 {
-                  "indexed": true,
-                  "internalType": "uint256",
-                  "name": "copyrightId",
-                  "type": "uint256"
+                  indexed: true,
+                  internalType: "uint256",
+                  name: "copyrightId",
+                  type: "uint256",
                 },
                 {
-                  "indexed": false,
-                  "internalType": "bytes32",
-                  "name": "contentHash",
-                  "type": "bytes32"
+                  indexed: false,
+                  internalType: "bytes32",
+                  name: "contentHash",
+                  type: "bytes32",
                 },
                 {
-                  "indexed": false,
-                  "internalType": "string",
-                  "name": "name",
-                  "type": "string"
+                  indexed: false,
+                  internalType: "string",
+                  name: "name",
+                  type: "string",
                 },
                 {
-                  "indexed": false,
-                  "internalType": "uint256",
-                  "name": "licenseId",
-                  "type": "uint256"
+                  indexed: false,
+                  internalType: "uint256",
+                  name: "licenseId",
+                  type: "uint256",
                 },
                 {
-                  "indexed": false,
-                  "internalType": "string",
-                  "name": "data_link",
-                  "type": "string"
+                  indexed: false,
+                  internalType: "string",
+                  name: "data_link",
+                  type: "string",
                 },
                 {
-                  "indexed": false,
-                  "internalType": "uint256",
-                  "name": "bodhi_id",
-                  "type": "uint256"
-                }
+                  indexed: false,
+                  internalType: "uint256",
+                  name: "bodhi_id",
+                  type: "uint256",
+                },
               ],
-              "name": "CopyrightCreated",
-              "type": "event"
+              name: "CopyrightCreated",
+              type: "event",
             },
             {
-              "anonymous": false,
-              "inputs": [
+              anonymous: false,
+              inputs: [
                 {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "from",
-                  "type": "address"
+                  indexed: true,
+                  internalType: "address",
+                  name: "from",
+                  type: "address",
                 },
                 {
-                  "indexed": true,
-                  "internalType": "address",
-                  "name": "to",
-                  "type": "address"
+                  indexed: true,
+                  internalType: "address",
+                  name: "to",
+                  type: "address",
                 },
                 {
-                  "indexed": true,
-                  "internalType": "uint256",
-                  "name": "id",
-                  "type": "uint256"
-                }
+                  indexed: true,
+                  internalType: "uint256",
+                  name: "id",
+                  type: "uint256",
+                },
               ],
-              "name": "Transfer",
-              "type": "event"
+              name: "Transfer",
+              type: "event",
             },
             {
-              "inputs": [
+              inputs: [],
+              name: "_nextTokenId",
+              outputs: [
                 {
-                  "internalType": "address",
-                  "name": "spender",
-                  "type": "address"
+                  internalType: "uint256",
+                  name: "",
+                  type: "uint256",
                 },
-                {
-                  "internalType": "uint256",
-                  "name": "id",
-                  "type": "uint256"
-                }
               ],
-              "name": "approve",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
+              stateMutability: "view",
+              type: "function",
             },
             {
-              "inputs": [
+              inputs: [
                 {
-                  "internalType": "address",
-                  "name": "owner",
-                  "type": "address"
-                }
-              ],
-              "name": "balanceOf",
-              "outputs": [
+                  internalType: "address",
+                  name: "spender",
+                  type: "address",
+                },
                 {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
+                  internalType: "uint256",
+                  name: "id",
+                  type: "uint256",
+                },
               ],
-              "stateMutability": "view",
-              "type": "function"
+              name: "approve",
+              outputs: [],
+              stateMutability: "nonpayable",
+              type: "function",
             },
             {
-              "inputs": [
+              inputs: [
                 {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
+                  internalType: "address",
+                  name: "owner",
+                  type: "address",
+                },
               ],
-              "name": "getApproved",
-              "outputs": [
+              name: "balanceOf",
+              outputs: [
                 {
-                  "internalType": "address",
-                  "name": "",
-                  "type": "address"
-                }
+                  internalType: "uint256",
+                  name: "",
+                  type: "uint256",
+                },
               ],
-              "stateMutability": "view",
-              "type": "function"
+              stateMutability: "view",
+              type: "function",
             },
             {
-              "inputs": [
+              inputs: [
                 {
-                  "internalType": "uint256",
-                  "name": "tokenId",
-                  "type": "uint256"
-                }
+                  internalType: "uint256",
+                  name: "",
+                  type: "uint256",
+                },
               ],
-              "name": "getCopyrightInfo",
-              "outputs": [
+              name: "getApproved",
+              outputs: [
                 {
-                  "internalType": "bytes32",
-                  "name": "contentHash",
-                  "type": "bytes32"
+                  internalType: "address",
+                  name: "",
+                  type: "address",
                 },
-                {
-                  "internalType": "string",
-                  "name": "name",
-                  "type": "string"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "licenseId",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "string",
-                  "name": "data_link",
-                  "type": "string"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "bodhi_id",
-                  "type": "uint256"
-                }
               ],
-              "stateMutability": "view",
-              "type": "function"
+              stateMutability: "view",
+              type: "function",
             },
             {
-              "inputs": [
+              inputs: [
                 {
-                  "internalType": "address",
-                  "name": "",
-                  "type": "address"
+                  internalType: "uint256",
+                  name: "tokenId",
+                  type: "uint256",
+                },
+              ],
+              name: "getCopyrightInfo",
+              outputs: [
+                {
+                  internalType: "bytes32",
+                  name: "contentHash",
+                  type: "bytes32",
                 },
                 {
-                  "internalType": "address",
-                  "name": "",
-                  "type": "address"
-                }
-              ],
-              "name": "isApprovedForAll",
-              "outputs": [
+                  internalType: "string",
+                  name: "name",
+                  type: "string",
+                },
                 {
-                  "internalType": "bool",
-                  "name": "",
-                  "type": "bool"
-                }
+                  internalType: "uint256",
+                  name: "licenseId",
+                  type: "uint256",
+                },
+                {
+                  internalType: "string",
+                  name: "data_link",
+                  type: "string",
+                },
+                {
+                  internalType: "uint256",
+                  name: "bodhi_id",
+                  type: "uint256",
+                },
               ],
-              "stateMutability": "view",
-              "type": "function"
+              stateMutability: "view",
+              type: "function",
             },
             {
-              "inputs": [],
-              "name": "licenseContract",
-              "outputs": [
+              inputs: [
                 {
-                  "internalType": "contract LicenseNFT",
-                  "name": "",
-                  "type": "address"
-                }
+                  internalType: "address",
+                  name: "",
+                  type: "address",
+                },
+                {
+                  internalType: "address",
+                  name: "",
+                  type: "address",
+                },
               ],
-              "stateMutability": "view",
-              "type": "function"
+              name: "isApprovedForAll",
+              outputs: [
+                {
+                  internalType: "bool",
+                  name: "",
+                  type: "bool",
+                },
+              ],
+              stateMutability: "view",
+              type: "function",
             },
             {
-              "inputs": [
+              inputs: [],
+              name: "licenseContract",
+              outputs: [
                 {
-                  "internalType": "address",
-                  "name": "to",
-                  "type": "address"
+                  internalType: "contract LicenseNFT",
+                  name: "",
+                  type: "address",
                 },
-                {
-                  "internalType": "string",
-                  "name": "uri",
-                  "type": "string"
-                },
-                {
-                  "internalType": "bytes32",
-                  "name": "contentHash",
-                  "type": "bytes32"
-                },
-                {
-                  "internalType": "string",
-                  "name": "name",
-                  "type": "string"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "licenseId",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "string",
-                  "name": "link",
-                  "type": "string"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "bodhi_id",
-                  "type": "uint256"
-                }
               ],
-              "name": "mint",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "nonpayable",
-              "type": "function"
+              stateMutability: "view",
+              type: "function",
             },
             {
-              "inputs": [],
-              "name": "name",
-              "outputs": [
+              inputs: [
                 {
-                  "internalType": "string",
-                  "name": "",
-                  "type": "string"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "id",
-                  "type": "uint256"
-                }
-              ],
-              "name": "ownerOf",
-              "outputs": [
-                {
-                  "internalType": "address",
-                  "name": "owner",
-                  "type": "address"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "from",
-                  "type": "address"
+                  internalType: "address",
+                  name: "to",
+                  type: "address",
                 },
                 {
-                  "internalType": "address",
-                  "name": "to",
-                  "type": "address"
+                  internalType: "string",
+                  name: "uri",
+                  type: "string",
                 },
                 {
-                  "internalType": "uint256",
-                  "name": "id",
-                  "type": "uint256"
-                }
+                  internalType: "bytes32",
+                  name: "contentHash",
+                  type: "bytes32",
+                },
+                {
+                  internalType: "string",
+                  name: "name",
+                  type: "string",
+                },
+                {
+                  internalType: "uint256",
+                  name: "licenseId",
+                  type: "uint256",
+                },
+                {
+                  internalType: "string",
+                  name: "link",
+                  type: "string",
+                },
+                {
+                  internalType: "uint256",
+                  name: "bodhi_id",
+                  type: "uint256",
+                },
               ],
-              "name": "safeTransferFrom",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
+              name: "mint",
+              outputs: [
+                {
+                  internalType: "uint256",
+                  name: "",
+                  type: "uint256",
+                },
+              ],
+              stateMutability: "nonpayable",
+              type: "function",
             },
             {
-              "inputs": [
+              inputs: [],
+              name: "name",
+              outputs: [
                 {
-                  "internalType": "address",
-                  "name": "from",
-                  "type": "address"
+                  internalType: "string",
+                  name: "",
+                  type: "string",
                 },
-                {
-                  "internalType": "address",
-                  "name": "to",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "id",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "bytes",
-                  "name": "data",
-                  "type": "bytes"
-                }
               ],
-              "name": "safeTransferFrom",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
+              stateMutability: "view",
+              type: "function",
             },
             {
-              "inputs": [
+              inputs: [
                 {
-                  "internalType": "address",
-                  "name": "operator",
-                  "type": "address"
+                  internalType: "uint256",
+                  name: "id",
+                  type: "uint256",
+                },
+              ],
+              name: "ownerOf",
+              outputs: [
+                {
+                  internalType: "address",
+                  name: "owner",
+                  type: "address",
+                },
+              ],
+              stateMutability: "view",
+              type: "function",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "from",
+                  type: "address",
                 },
                 {
-                  "internalType": "bool",
-                  "name": "approved",
-                  "type": "bool"
-                }
-              ],
-              "name": "setApprovalForAll",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "bytes4",
-                  "name": "interfaceId",
-                  "type": "bytes4"
-                }
-              ],
-              "name": "supportsInterface",
-              "outputs": [
-                {
-                  "internalType": "bool",
-                  "name": "",
-                  "type": "bool"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "symbol",
-              "outputs": [
-                {
-                  "internalType": "string",
-                  "name": "",
-                  "type": "string"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "id",
-                  "type": "uint256"
-                }
-              ],
-              "name": "tokenURI",
-              "outputs": [
-                {
-                  "internalType": "string",
-                  "name": "",
-                  "type": "string"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "address",
-                  "name": "from",
-                  "type": "address"
+                  internalType: "address",
+                  name: "to",
+                  type: "address",
                 },
                 {
-                  "internalType": "address",
-                  "name": "to",
-                  "type": "address"
+                  internalType: "uint256",
+                  name: "id",
+                  type: "uint256",
+                },
+              ],
+              name: "safeTransferFrom",
+              outputs: [],
+              stateMutability: "nonpayable",
+              type: "function",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "from",
+                  type: "address",
                 },
                 {
-                  "internalType": "uint256",
-                  "name": "id",
-                  "type": "uint256"
-                }
+                  internalType: "address",
+                  name: "to",
+                  type: "address",
+                },
+                {
+                  internalType: "uint256",
+                  name: "id",
+                  type: "uint256",
+                },
+                {
+                  internalType: "bytes",
+                  name: "data",
+                  type: "bytes",
+                },
               ],
-              "name": "transferFrom",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            }
+              name: "safeTransferFrom",
+              outputs: [],
+              stateMutability: "nonpayable",
+              type: "function",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "operator",
+                  type: "address",
+                },
+                {
+                  internalType: "bool",
+                  name: "approved",
+                  type: "bool",
+                },
+              ],
+              name: "setApprovalForAll",
+              outputs: [],
+              stateMutability: "nonpayable",
+              type: "function",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "bytes4",
+                  name: "interfaceId",
+                  type: "bytes4",
+                },
+              ],
+              name: "supportsInterface",
+              outputs: [
+                {
+                  internalType: "bool",
+                  name: "",
+                  type: "bool",
+                },
+              ],
+              stateMutability: "view",
+              type: "function",
+            },
+            {
+              inputs: [],
+              name: "symbol",
+              outputs: [
+                {
+                  internalType: "string",
+                  name: "",
+                  type: "string",
+                },
+              ],
+              stateMutability: "view",
+              type: "function",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "uint256",
+                  name: "id",
+                  type: "uint256",
+                },
+              ],
+              name: "tokenURI",
+              outputs: [
+                {
+                  internalType: "string",
+                  name: "",
+                  type: "string",
+                },
+              ],
+              stateMutability: "view",
+              type: "function",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "from",
+                  type: "address",
+                },
+                {
+                  internalType: "address",
+                  name: "to",
+                  type: "address",
+                },
+                {
+                  internalType: "uint256",
+                  name: "id",
+                  type: "uint256",
+                },
+              ],
+              name: "transferFrom",
+              outputs: [],
+              stateMutability: "nonpayable",
+              type: "function",
+            },
           ],
         },
       },

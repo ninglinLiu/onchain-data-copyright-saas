@@ -15,7 +15,7 @@ contract LicenseNFT is ERC721 {
     mapping(uint256 => uint256) private _bodhi_ids;
     // The link could be a link to the bodhi asset, link to the arweave asset, or any link else to the content.
     mapping(uint256 => string) private _cotent_links;
-    uint256 private _nextTokenId;
+    uint256 public _nextTokenId;
 
     constructor() ERC721("License", "PRTCL") {
         _nextTokenId = 1;
@@ -62,7 +62,7 @@ contract CopyrightNFT is ERC721 {
 
     mapping(uint256 => CopyrightMetadata) private _metadata;
     mapping(uint256 => string) private _tokenURI;
-    uint256 private _nextTokenId;
+    uint256 public _nextTokenId;
     LicenseNFT public immutable licenseContract;
     // IBodhi public immutable bodhi;
 
