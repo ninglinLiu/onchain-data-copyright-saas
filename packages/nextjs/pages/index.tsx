@@ -8,48 +8,56 @@ const LICENSE_OPTIONS = [
     name: "CC0 - No Rights Reserved",
     usage: "Free to use, modify, distribute, and sell without any restrictions",
     profit: "100% profit goes to the user, no royalties required",
+    bodhi_id: 10000,
   },
   {
     id: "cc-by",
     name: "CC BY - Attribution",
     usage: "Free to use with mandatory credit to original creator",
     profit: "100% profit goes to the user, but must credit original creator",
+    bodhi_id: 10001,
   },
   {
     id: "cc-by-sa",
     name: "CC BY-SA - Attribution-ShareAlike",
     usage: "Free to use and modify, but must share under same license",
     profit: "100% profit goes to the user, derivatives must use same license",
+    bodhi_id: 10002,
   },
   {
     id: "cc-by-nc",
     name: "CC BY-NC - Attribution-NonCommercial",
     usage: "Free for non-commercial use only with attribution",
     profit: "No commercial use allowed, non-profit only",
+    bodhi_id: 10003,
   },
   {
     id: "cc-by-nd",
     name: "CC BY-ND - Attribution-NoDerivs",
     usage: "Can be shared but not modified, must credit creator",
     profit: "100% profit goes to the user, no derivative works allowed",
+    bodhi_id: 10004,
   },
   {
     id: "mit",
     name: "MIT License",
     usage: "Free to use, modify, and distribute with minimal restrictions",
     profit: "100% profit goes to the user, includes commercial use",
+    bodhi_id: 10005,
   },
   {
     id: "apache",
     name: "Apache License 2.0",
     usage: "Free to use with patent rights and warranty included",
     profit: "100% profit goes to the user, includes patent rights",
+    bodhi_id: 10006,
   },
   {
     id: "gpl",
     name: "GNU GPL v3",
     usage: "Free to use but must keep source code open",
     profit: "100% profit goes to the user, derivatives must be open source",
+    bodhi_id: 10007,
   },
 ];
 
@@ -84,14 +92,14 @@ export type AIAgent = {
 };
 
 const ETHSpace: NextPage = () => {
-  //AI agent状态管理
-  const [filteredAgents, setFilteredAgents] = useState<AIAgent[]>([]);
+  // State for selected license
+  const [selectedLicense, setSelectedLicense] = useState(LICENSE_OPTIONS[0]);
 
   // 格式化地址为简短格式
-  const formatAddress = (address: string) => {
-    if (!address) return "";
-    return `${address.slice(0, 4)}...${address.slice(-2)}`;
-  };
+  // const formatAddress = (address: string) => {
+  //   if (!address) return "";
+  //   return `${address.slice(0, 4)}...${address.slice(-2)}`;
+  // };
   //初始化AI agents数据
   const init = async () => {
     // 暂时使用提供的示例数据，稍后可以从API获取
@@ -123,18 +131,6 @@ const ETHSpace: NextPage = () => {
     // ];
 
     // Sort function to prioritize items with 🔥 in name
-    const sortByFire = (items: AIAgent[]) => {
-      return [...items].sort((a, b) => {
-        const aHasFire = a.name.includes("🔥");
-        const bHasFire = b.name.includes("🔥");
-        if (aHasFire && !bHasFire) return -1;
-        if (!aHasFire && bHasFire) return 1;
-        return 0;
-      });
-    };
-
-    const sortedData = sortByFire(data);
-    setFilteredAgents(sortedData);
   };
 
   useEffect(() => {
@@ -183,48 +179,46 @@ const ETHSpace: NextPage = () => {
                 <label className="label">
                   <span className="label-text">Choose a License Type:</span>
                 </label>
-                <select className="select select-bordered w-full">
-                  <option disabled selected>
-                    Pick a license
-                  </option>
-                  <option value="cc0">CC0 - No Rights Reserved</option>
-                  <option value="cc-by">CC BY - Attribution</option>
-                  <option value="cc-by-sa">CC BY-SA - Attribution-ShareAlike</option>
-                  <option value="cc-by-nc">CC BY-NC - Attribution-NonCommercial</option>
-                  <option value="cc-by-nd">CC BY-ND - Attribution-NoDerivs</option>
-                  <option value="mit">MIT License</option>
-                  <option value="apache">Apache License 2.0</option>
-                  <option value="gpl">GNU GPL v3</option>
+                <select
+                  className="select select-bordered w-full"
+                  value={selectedLicense.id}
+                  onChange={e => {
+                    const newSelectedLicense = LICENSE_OPTIONS.find(license => license.id === e.target.value);
+                    if (newSelectedLicense) {
+                      setSelectedLicense(newSelectedLicense);
+                    }
+                  }}
+                >
+                  {LICENSE_OPTIONS.map(license => (
+                    <option key={license.id} value={license.id}>
+                      {license.name}
+                    </option>
+                  ))}
                 </select>
 
-                <div className="mt-4 text-sm text-gray-600 dark:text-gray-400">
-                  <p>💡 License descriptions:</p>
-                  <ul className="list-disc pl-5 mt-2 space-y-1">
-                    <li>
-                      <strong>CC0:</strong> Waives all rights, similar to public domain
-                    </li>
-                    <li>
-                      <strong>CC BY:</strong> Must give credit to original creator
-                    </li>
-                    <li>
-                      <strong>CC BY-SA:</strong> Must share under same terms
-                    </li>
-                    <li>
-                      <strong>CC BY-NC:</strong> No commercial use allowed
-                    </li>
-                    <li>
-                      <strong>CC BY-ND:</strong> No derivatives allowed
-                    </li>
-                    <li>
-                      <strong>MIT:</strong> Permissive, allows commercial use
-                    </li>
-                    <li>
-                      <strong>Apache:</strong> Includes patent rights
-                    </li>
-                    <li>
-                      <strong>GPL:</strong> Must keep source open
-                    </li>
-                  </ul>
+                <div className="mt-6 space-y-4">
+                  <h4 className="text-lg font-semibold text-purple-600 dark:text-purple-400 mb-2">
+                    {selectedLicense.name}
+                  </h4>
+                  <p className="text-sm text-gray-700 dark:text-gray-300">
+                    <b>Usage Terms:</b>
+                    {selectedLicense.usage}
+                  </p>
+                  <p className="text-sm text-gray-700 dark:text-gray-300">
+                    <b>Profit Distribution:</b>
+                    {selectedLicense.profit}
+                  </p>
+                  <p className="text-sm text-gray-700 dark:text-gray-300">
+                    <b>Bodhi Link:</b>
+                    <a
+                      href={`https://bodhi.wtf/${selectedLicense.bodhi_id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 underline hover:no-underline transition-all duration-200"
+                    >
+                      {`https://bodhi.wtf/${selectedLicense.bodhi_id}`} 🔗
+                    </a>
+                  </p>
                 </div>
               </div>
             </div>
