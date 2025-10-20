@@ -2,10 +2,12 @@
 pragma solidity ^0.8.18;
 
 import "./IBodhi.sol";
-import "./ERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 // bodhi address: 0x2ad82a4e39bac43a54ddfe6f94980aaf0d1409ef
 
-contract LicenseNFT is ERC721 {
+contract LicenseNFT is ERC721, ERC721Enumerable {
     // Events
     event LicenseCreated(uint256 indexed licenseId, string name, string link);
 
@@ -19,6 +21,30 @@ contract LicenseNFT is ERC721 {
 
     constructor() ERC721("License", "PRTCL") {
         _nextTokenId = 1;
+    }
+
+    function _update(
+        address to,
+        uint256 tokenId,
+        address auth
+    ) internal override(ERC721, ERC721Enumerable) returns (address) {
+        return super._update(to, tokenId, auth);
+    }
+
+    function _increaseBalance(address account, uint128 value)
+        internal
+        override(ERC721, ERC721Enumerable)
+    {
+        super._increaseBalance(account, value);
+    }
+
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(ERC721, ERC721Enumerable)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
     }
 
     // if bodhi_id is 0, then the license is not bodhi based
@@ -35,19 +61,26 @@ contract LicenseNFT is ERC721 {
     }
 
     function tokenURI(uint256 id) public view virtual override returns (string memory) {
-        require(_ownerOf[id] != address(0), "Token does not exist");
+        require(_ownerOf(id) != address(0), "Token does not exist");
         return _tokenURI[id];
     }
 
-
+    function tokensOfOwner(address owner) public view returns (uint256[] memory) {
+        uint256 count = balanceOf(owner);
+        uint256[] memory result = new uint256[](count);
+        for (uint256 i = 0; i < count; i++) {
+            result[i] = tokenOfOwnerByIndex(owner, i);
+        }
+        return result;
+    }
 
     function getLicenseInfo(uint256 tokenId) external view returns (string memory name, string memory uri,string memory link, uint256 bodhi_id) {
-        require(_ownerOf[tokenId] != address(0), "Token does not exist");
+        require(_ownerOf(tokenId) != address(0), "Token does not exist");
         return (_names[tokenId], _tokenURI[tokenId], _cotent_links[tokenId], _bodhi_ids[tokenId]);
     }
 }
 
-contract CopyrightNFT is ERC721 {
+contract CopyrightNFT is ERC721, ERC721Enumerable {
     // Events
     event CopyrightCreated(uint256 indexed copyrightId, string contentHash, string name, uint256 licenseId, string data_link, uint256 bodhi_id);
 
@@ -70,6 +103,31 @@ contract CopyrightNFT is ERC721 {
         licenseContract = LicenseNFT(_licenseContract);
         // bodhi = IBodhi(_bodhiAddress);
         _nextTokenId = 1;
+    }
+
+
+    function _update(
+        address to,
+        uint256 tokenId,
+        address auth
+    ) internal override(ERC721, ERC721Enumerable) returns (address) {
+        return super._update(to, tokenId, auth);
+    }
+
+    function _increaseBalance(address account, uint128 value)
+        internal
+        override(ERC721, ERC721Enumerable)
+    {
+        super._increaseBalance(account, value);
+    }
+
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(ERC721, ERC721Enumerable)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
     }
 
     // if bodhi_id is 0, then the copyright is not bodhi based
@@ -100,7 +158,7 @@ contract CopyrightNFT is ERC721 {
     }
 
     function tokenURI(uint256 id) public view virtual override returns (string memory) {
-        require(_ownerOf[id] != address(0), "Token does not exist");
+        require(_ownerOf(id) != address(0), "Token does not exist");
         return _tokenURI[id];
     }
 
@@ -112,7 +170,7 @@ contract CopyrightNFT is ERC721 {
         string memory data_link,
         uint256 bodhi_id
     ) {
-        require(_ownerOf[tokenId] != address(0), "Token does not exist");
+        require(_ownerOf(tokenId) != address(0), "Token does not exist");
         CopyrightMetadata memory metadata = _metadata[tokenId];
         return (
             metadata.name,
@@ -122,6 +180,15 @@ contract CopyrightNFT is ERC721 {
             metadata.data_link,
             metadata.bodhi_id
         );
+    }
+
+    function tokensOfOwner(address owner) public view returns (uint256[] memory) {
+        uint256 count = balanceOf(owner);
+        uint256[] memory result = new uint256[](count);
+        for (uint256 i = 0; i < count; i++) {
+            result[i] = tokenOfOwnerByIndex(owner, i);
+        }
+        return result;
     }
 }
 

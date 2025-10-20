@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { NextPage } from "next";
 import ReactMarkdown from "react-markdown";
-import { useScaffoldContractRead } from "~~/hooks/scaffold-eth";
+import { useContractReads } from "wagmi";
+import { useDeployedContractInfo, useScaffoldContractRead } from "~~/hooks/scaffold-eth";
 import scaffoldConfig from "~~/scaffold.config";
-import { contracts } from "~~/utils/scaffold-eth/contract";
+import { getTargetNetwork } from "~~/utils/scaffold-eth";
+import { AbiFunctionReturnType, ContractAbi, contracts } from "~~/utils/scaffold-eth/contract";
 
 const ArweaveContent = ({ link }: { link: string }) => {
   const [abstract, setAbstract] = useState<string>("");
@@ -44,8 +46,40 @@ interface License {
   uri: string;
   link: string;
   bodhi_id: number;
+  active: boolean;
   createdAt: number;
 }
+
+const useAllLicensesReader = (totalLicenses: number | undefined) => {
+  const { data: deployedContract } = useDeployedContractInfo("BodhiBasedCopyright");
+  const contractReadsParams = [];
+
+  if (totalLicenses) {
+    for (let i = 1; i <= totalLicenses; i++) {
+      const args = [BigInt(i)];
+      contractReadsParams.push({
+        chainId: getTargetNetwork().id,
+        address: deployedContract?.address,
+        abi: deployedContract?.abi,
+        functionName: "getLicense",
+        args,
+      });
+    }
+  }
+
+  console.log("contractReadsParams", contractReadsParams);
+  return useContractReads({
+    contracts: contractReadsParams,
+    watch: true,
+    enabled: !!totalLicenses && !!deployedContract,
+  }) as unknown as Omit<ReturnType<typeof useContractReads>, "data" | "refetch"> & {
+    data: AbiFunctionReturnType<ContractAbi, "getLicense">[] | undefined;
+    refetch: (options?: {
+      throwOnError: boolean;
+      cancelRefetch: boolean;
+    }) => Promise<AbiFunctionReturnType<ContractAbi, "getLicense">[]>;
+  };
+};
 
 const LicenseGallery: NextPage = () => {
   const [licenses, setLicenses] = useState<License[]>([]);
@@ -62,31 +96,21 @@ const LicenseGallery: NextPage = () => {
 
   // 获取所有 licenses，
   // get linceses by call the contract BodhiBasedCopyright, use the function getLicense one by one by the licenseId, the licenseId is from 1 to totalLicenses
-  // Create individual hooks for first 10 licenses
-  const license1 = useScaffoldContractRead({
-    contractName: "BodhiBasedCopyright",
-    functionName: "getLicense",
-    args: [BigInt(1)],
-  });
-  const license2 = useScaffoldContractRead({
-    contractName: "BodhiBasedCopyright",
-    functionName: "getLicense",
-    args: [BigInt(2)],
-  });
-  // ... add more as needed
+  // Use the batch reader hook to get all licenses
+  const { data: licenseData } = useAllLicensesReader(totalLicenses);
 
-  const licenseHooks = [license1, license2];
-
+  console.log("licenseData", licenseData);
   useEffect(() => {
-    if (!totalLicenses) {
+    if (!totalLicenses || !licenseData) {
       setLoading(false);
       return;
     }
 
-    const fetchedLicenses: License[] = licenseHooks
-      .map((hook, index) => {
-        if (!hook.data) return null;
-        const [name, uri, link, bodhi_id] = hook.data;
+    const fetchedLicenses = licenseData
+      .map((data, index) => {
+        if (!data) return null;
+        console.log("data", data);
+        const [name, uri, link, bodhi_id] = data["result"];
         return {
           id: index + 1,
           name,
@@ -101,7 +125,7 @@ const LicenseGallery: NextPage = () => {
 
     setLicenses(fetchedLicenses);
     setLoading(false);
-  }, [totalLicenses, licenseHooks]);
+  }, [totalLicenses, licenseData]);
 
   const formatDate = (timestamp: number) => {
     return new Date(timestamp).toLocaleDateString("zh-CN", {

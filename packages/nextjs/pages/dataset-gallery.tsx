@@ -1,18 +1,18 @@
 import { useEffect, useState } from "react";
 import { NextPage } from "next";
-import { useAccount } from "wagmi";
-import { useScaffoldContractRead } from "~~/hooks/scaffold-eth";
+import { useAccount, useContractReads } from "wagmi";
 import { Address } from "~~/components/scaffold-eth";
+import { useDeployedContractInfo, useScaffoldContractRead } from "~~/hooks/scaffold-eth";
+import { getTargetNetwork } from "~~/utils/scaffold-eth";
 
 interface Dataset {
   id: number;
-  arTxId: string;
+  name: string;
+  link: string;
+  contentHash: string;
+  uri: string;
+  bodhi_id: number;
   owner: string;
-  createdAt: number;
-  licenseId?: number;
-  licenseName?: string;
-  licenseType?: number;
-  totalSupply?: string;
 }
 
 const DatasetGallery: NextPage = () => {
@@ -22,122 +22,102 @@ const DatasetGallery: NextPage = () => {
   const [filter, setFilter] = useState<"all" | "my">("all");
 
   // 读取 dataset 总数
-  const { data: datasetIndex } = useScaffoldContractRead({
-    contractName: "DatasetRegistry",
-    functionName: "datasetIndex",
+  const { data: nextTokenId } = useScaffoldContractRead({
+    contractName: "CopyrightNFT",
+    functionName: "_nextTokenId",
   });
 
   // 获取所有 datasets
+  // Create individual hooks for first 10 datasets
+  const dataset1 = useScaffoldContractRead({
+    contractName: "BodhiBasedCopyright",
+    functionName: "getCopyright",
+    args: [BigInt(1)],
+  });
+  const dataset2 = useScaffoldContractRead({
+    contractName: "BodhiBasedCopyright",
+    functionName: "getCopyright",
+    args: [BigInt(2)],
+  });
+  const dataset3 = useScaffoldContractRead({
+    contractName: "BodhiBasedCopyright",
+    functionName: "getCopyright",
+    args: [BigInt(3)],
+  });
+  const dataset4 = useScaffoldContractRead({
+    contractName: "BodhiBasedCopyright",
+    functionName: "getCopyright",
+    args: [BigInt(4)],
+  });
+  const dataset5 = useScaffoldContractRead({
+    contractName: "BodhiBasedCopyright",
+    functionName: "getCopyright",
+    args: [BigInt(5)],
+  });
+
+  // Get owners for each dataset
+  const owner1 = useScaffoldContractRead({
+    contractName: "CopyrightNFT",
+    functionName: "ownerOf",
+    args: [BigInt(1)],
+  });
+  const owner2 = useScaffoldContractRead({
+    contractName: "CopyrightNFT",
+    functionName: "ownerOf",
+    args: [BigInt(2)],
+  });
+  const owner3 = useScaffoldContractRead({
+    contractName: "CopyrightNFT",
+    functionName: "ownerOf",
+    args: [BigInt(3)],
+  });
+  const owner4 = useScaffoldContractRead({
+    contractName: "CopyrightNFT",
+    functionName: "ownerOf",
+    args: [BigInt(4)],
+  });
+  const owner5 = useScaffoldContractRead({
+    contractName: "CopyrightNFT",
+    functionName: "ownerOf",
+    args: [BigInt(5)],
+  });
+
+  const datasetHooks = [dataset1, dataset2, dataset3, dataset4, dataset5];
+  const ownerHooks = [owner1, owner2, owner3, owner4, owner5];
+
   useEffect(() => {
-    const fetchDatasets = async () => {
-      // 使用模拟数据，避免合约连接问题
-      const mockDatasets: Dataset[] = [
-        {
-          id: 1,
-          arTxId: "abc123def456ghi789jkl012mno345pqr678stu901vwx234yz",
-          owner: "0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6",
-          createdAt: Date.now() - 86400000 * 3,
-          licenseId: 1,
-          licenseName: "MIT License",
-          licenseType: 1,
-          totalSupply: "1000000000000000000000", // 1000 tokens
-        },
-        {
-          id: 2,
-          arTxId: "xyz789abc123def456ghi789jkl012mno345pqr678stu",
-          owner: "0x8ba1f109551bD432803012645Hac136c66C626e",
-          createdAt: Date.now() - 86400000 * 2,
-          licenseId: 2,
-          licenseName: "Creative Commons",
-          licenseType: 2,
-          totalSupply: "500000000000000000000", // 500 tokens
-        },
-        {
-          id: 3,
-          arTxId: "def456ghi789jkl012mno345pqr678stu901vwx234yz",
-          owner: "0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6",
-          createdAt: Date.now() - 86400000,
-          licenseId: 3,
-          licenseName: "Proprietary",
-          licenseType: 0,
-          totalSupply: "2000000000000000000000", // 2000 tokens
-        },
-        {
-          id: 4,
-          arTxId: "ghi789jkl012mno345pqr678stu901vwx234yzabc123def456",
-          owner: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
-          createdAt: Date.now() - 86400000 * 4,
-          licenseId: 4,
-          licenseName: "Apache 2.0",
-          licenseType: 1,
-          totalSupply: "1500000000000000000000", // 1500 tokens
-        },
-        {
-          id: 5,
-          arTxId: "jkl012mno345pqr678stu901vwx234yzabc123def456ghi789",
-          owner: "0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6",
-          createdAt: Date.now() - 86400000 * 5,
-          licenseId: 5,
-          licenseName: "GPL v3",
-          licenseType: 2,
-          totalSupply: "800000000000000000000", // 800 tokens
-        },
-      ];
-      
-      setDatasets(mockDatasets);
+    if (!nextTokenId) {
       setLoading(false);
-    };
-
-    fetchDatasets();
-  }, []);
-
-  const getLicenseTypeName = (type?: number) => {
-    if (type === undefined) return "未绑定";
-    switch (type) {
-      case 0:
-        return "禁止衍生";
-      case 1:
-        return "完全开放";
-      case 2:
-        return "5% 回流";
-      default:
-        return "未知";
+      return;
     }
-  };
 
-  const getLicenseTypeColor = (type?: number) => {
-    if (type === undefined) return "bg-gray-100 text-gray-800";
-    switch (type) {
-      case 0:
-        return "bg-red-100 text-red-800";
-      case 1:
-        return "bg-green-100 text-green-800";
-      case 2:
-        return "bg-blue-100 text-blue-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
+    const fetchedDatasets: Dataset[] = datasetHooks
+      .map((hook, index) => {
+        if (!hook.data || !ownerHooks[index].data) return null;
+        const [contentHash, name, licenseId, link, bodhi_id] = hook.data;
+        return {
+          id: index + 1,
+          name,
+          link,
+          contentHash: contentHash.toString(),
+          uri: link, // Using link as uri since they serve similar purposes
+          bodhi_id: Number(bodhi_id),
+          owner: ownerHooks[index].data as string,
+        };
+      })
+      .filter((dataset): dataset is Dataset => dataset !== null);
 
-  const formatDate = (timestamp: number) => {
-    return new Date(timestamp).toLocaleDateString("zh-CN", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
+    setDatasets(fetchedDatasets);
+    // get the owner by call the contract CopyrightNFT, use the function ownerOf one by one by the NFT Id.
+    setLoading(false);
+  }, [nextTokenId, datasetHooks, ownerHooks]);
 
   const formatAddress = (address: string) => {
     if (!address) return "";
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
   };
 
-  const filteredDatasets =
-    filter === "my" && connectedAddress
-      ? datasets.filter(d => d.owner.toLowerCase() === connectedAddress.toLowerCase())
-      : datasets;
+  const filteredDatasets = datasets;
 
   if (loading) {
     return (
@@ -154,16 +134,18 @@ const DatasetGallery: NextPage = () => {
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-2">🗂️ Dataset 画廊</h1>
-        <p className="text-gray-600">浏览所有已注册的数据集 NFT</p>
+        <h1 className="text-4xl font-bold mb-2">🗂️ Dataset 展览馆</h1>
+        <p className="text-gray-600">
+          浏览所有已创建的数据集 NFT，创建意味着被存证和确权，如果 Tokenized，则可以购买数据集的股份！
+        </p>
         <div className="mt-4 flex items-center justify-between flex-wrap gap-4">
           <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-500">总计: {datasets.length} 个数据集</span>
-            {connectedAddress && (
+            <span className="text-sm text-gray-500">总计: {nextTokenId ? Number(nextTokenId) - 1 : 0} 个数据集</span>
+            {/* {connectedAddress && (
               <span className="text-sm text-gray-500">
                 已连接: <Address address={connectedAddress} />
               </span>
-            )}
+            )} */}
           </div>
 
           {/* Filter Buttons */}
@@ -172,9 +154,7 @@ const DatasetGallery: NextPage = () => {
               <button
                 onClick={() => setFilter("all")}
                 className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
-                  filter === "all"
-                    ? "bg-primary text-white"
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  filter === "all" ? "bg-primary text-white" : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                 }`}
               >
                 全部
@@ -182,9 +162,7 @@ const DatasetGallery: NextPage = () => {
               <button
                 onClick={() => setFilter("my")}
                 className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
-                  filter === "my"
-                    ? "bg-primary text-white"
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  filter === "my" ? "bg-primary text-white" : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                 }`}
               >
                 我的数据集
@@ -197,9 +175,7 @@ const DatasetGallery: NextPage = () => {
       {/* Dataset Cards Grid */}
       {filteredDatasets.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-xl text-gray-500">
-            {filter === "my" ? "您还没有创建任何数据集" : "暂无数据集"}
-          </p>
+          <p className="text-xl text-gray-500">{filter === "my" ? "您还没有创建任何数据集" : "暂无数据集"}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -211,88 +187,79 @@ const DatasetGallery: NextPage = () => {
               {/* Dataset Image/Icon */}
               <div className="bg-gradient-to-br from-blue-400 to-purple-600 h-48 flex items-center justify-center relative">
                 <div className="text-white text-6xl">📊</div>
-                {connectedAddress &&
-                  dataset.owner.toLowerCase() === connectedAddress.toLowerCase() && (
-                    <div className="absolute top-2 right-2 bg-yellow-400 text-yellow-900 px-2 py-1 rounded-full text-xs font-bold">
-                      我的
-                    </div>
-                  )}
+                {connectedAddress && dataset.owner.toLowerCase() === connectedAddress.toLowerCase() && (
+                  <div className="absolute top-2 right-2 bg-yellow-400 text-yellow-900 px-2 py-1 rounded-full text-xs font-bold">
+                    我的
+                  </div>
+                )}
               </div>
 
               {/* Dataset Info */}
               <div className="p-6">
                 {/* Dataset ID */}
-                <h3 className="text-xl font-bold mb-3">Dataset #{dataset.id}</h3>
+                <h3 className="text-xl font-bold mb-3">Dataset {dataset.name}</h3>
 
-                {/* License Type Badge */}
-                {dataset.licenseType !== undefined && (
-                  <div className="mb-3">
-                    <span
-                      className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${getLicenseTypeColor(
-                        dataset.licenseType,
-                      )}`}
-                    >
-                      {getLicenseTypeName(dataset.licenseType)}
-                    </span>
-                  </div>
-                )}
-
-                {/* Owner */}
+                {/* Content Hash */}
                 <div className="mb-2">
-                  <span className="text-sm text-gray-600">拥有者:</span>
-                  <Address address={dataset.owner} />
+                  <span className="text-sm text-gray-600">Content Hash:</span>
+                  <span className="ml-2 text-sm font-mono">{formatAddress(dataset.contentHash)}</span>
                 </div>
 
-                {/* Arweave TX ID */}
+                {/* URI */}
                 <div className="mb-2">
-                  <span className="text-sm text-gray-600">Arweave ID:</span>
+                  <span className="text-sm text-gray-600">URI:</span>
                   <a
-                    href={`https://arweave.net/${dataset.arTxId}`}
+                    href={dataset.uri}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="ml-2 text-sm text-blue-600 hover:text-blue-800 font-mono"
+                    className="ml-2 text-sm text-blue-600 hover:text-blue-800 truncate block"
                   >
-                    {formatAddress(dataset.arTxId)}
+                    {dataset.uri.length > 30 ? `${dataset.uri.slice(0, 30)}...` : dataset.uri}
                   </a>
                 </div>
 
-                {/* Total Supply */}
-                {dataset.totalSupply && (
-                  <div className="mb-2">
-                    <span className="text-sm text-gray-600">总供应量:</span>
-                    <span className="ml-2 text-sm font-semibold">
-                      {(Number(dataset.totalSupply) / 1e18).toFixed(2)} 份额
-                    </span>
-                  </div>
-                )}
-
-                {/* Created Time */}
-                <div className="mb-4">
-                  <span className="text-sm text-gray-600">创建时间:</span>
-                  <span className="ml-2 text-sm">{formatDate(dataset.createdAt)}</span>
+                {/* Link */}
+                <div className="mb-2">
+                  <span className="text-sm text-gray-600">Link:</span>
+                  <a
+                    href={dataset.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="ml-2 text-sm text-blue-600 hover:text-blue-800 truncate block"
+                  >
+                    {dataset.link.length > 30 ? `${dataset.link.slice(0, 30)}...` : dataset.link}
+                  </a>
                 </div>
 
-                {/* License Info */}
-                {dataset.licenseId && (
-                  <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-                    <div className="text-xs text-gray-600 mb-1">绑定许可证</div>
-                    <div className="text-sm font-semibold">
-                      {dataset.licenseName || `License #${dataset.licenseId}`}
-                    </div>
-                  </div>
-                )}
+                {/* Bodhi ID */}
+                <div className="mb-4">
+                  <span className="text-sm text-gray-600">Bodhi ID:</span>
+                  <a
+                    href={`https://bodhi.wtf/${dataset.bodhi_id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="ml-2 text-sm text-blue-600 hover:text-blue-800"
+                  >
+                    #{dataset.bodhi_id} {/* Display Bodhi ID */}
+                    {/* Debug info */}
+                    <pre className="mt-2 text-xs overflow-auto">
+                      {JSON.stringify(dataset, (_, value) =>
+                        typeof value === 'bigint' ? value.toString() : value
+                      , 2)}
+                    </pre>
+                  </a>
+                </div>
 
                 {/* Action Buttons */}
                 <div className="flex gap-2 mt-4">
                   <button className="flex-1 bg-primary hover:bg-primary-focus text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200">
                     查看详情
                   </button>
-                  {connectedAddress &&
-                    dataset.owner.toLowerCase() !== connectedAddress.toLowerCase() && (
-                      <button className="flex-1 bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200">
-                        购买份额
-                      </button>
-                    )}
+                  {connectedAddress && dataset.owner.toLowerCase() !== connectedAddress.toLowerCase() && (
+                    <button className="flex-1 bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200">
+                      购买份额
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -307,18 +274,12 @@ const DatasetGallery: NextPage = () => {
           <div className="text-blue-100">总数据集数量</div>
         </div>
         <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-lg p-6 text-white">
-          <div className="text-3xl font-bold mb-2">
-            {datasets.filter(d => d.licenseType === 1).length}
-          </div>
-          <div className="text-green-100">完全开放许可</div>
+          <div className="text-3xl font-bold mb-2">{datasets.filter(d => d.bodhi_id >= 15544).length}</div>
+          <div className="text-green-100">Bodhi NFT 数量</div>
         </div>
         <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg p-6 text-white">
-          <div className="text-3xl font-bold mb-2">
-            {connectedAddress
-              ? datasets.filter(d => d.owner.toLowerCase() === connectedAddress.toLowerCase()).length
-              : 0}
-          </div>
-          <div className="text-purple-100">我的数据集</div>
+          <div className="text-3xl font-bold mb-2">{datasets.filter(d => d.bodhi_id < 15544).length}</div>
+          <div className="text-purple-100">标准数据集</div>
         </div>
       </div>
 
@@ -349,4 +310,3 @@ const DatasetGallery: NextPage = () => {
 };
 
 export default DatasetGallery;
-
