@@ -7,6 +7,7 @@ important links:
 * [Smart Contract BodhiBasedCopyright](https://sepolia.etherscan.io/address/0x558D4A4C35d00A03A3CF831A2DcFe73BeBE58fc8#code)
 * [Smart Contract LicenseNFT](https://sepolia.etherscan.io/address/0x52e3EBaDAe5fBE562D997220Ea819BF46D4c35f5#code)
 * [Smart Contract 0x2e742854e540E5cFc8E715EFeaDea6e49b2De6C6](https://sepolia.etherscan.io/address/0x2e742854e540E5cFc8E715EFeaDea6e49b2De6C6#code)
+
 keypoints:
 
 * 从「现实订单」出发，推导「区块链基础设施」，而非「假设需求🤔」
