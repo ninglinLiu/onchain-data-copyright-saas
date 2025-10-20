@@ -267,8 +267,8 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 
 ## 📞 Contact
 
-- **Email**:
-- **Website**:
+- **Email**: leeduckgo@gmail.com
+- **Wechat**: 197626581
 - **Twitter**: https://x.com/0xleeduckgo
 
 ## 🙏 Acknowledgments
