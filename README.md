@@ -3,6 +3,7 @@
 
 important links:
 
+* [https://rightproof.app.aidimsum.com/](https://rightproof.app.aidimsum.com/)
 * [【腾讯文档】数据确权+RWA化的链上系统](https://docs.qq.com/slide/DQ1J4U3pIV2ZMZFZC)
 * [Smart Contract BodhiBasedCopyright](https://sepolia.etherscan.io/address/0x558D4A4C35d00A03A3CF831A2DcFe73BeBE58fc8#code)
 * [Smart Contract LicenseNFT](https://sepolia.etherscan.io/address/0x52e3EBaDAe5fBE562D997220Ea819BF46D4c35f5#code)
