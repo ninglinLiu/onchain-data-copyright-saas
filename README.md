@@ -133,9 +133,15 @@ License Contract
 ## 🎨 User Interface & Experience
 
 ### 📱 Interface Screenshots
-*[Screenshots will be added showing Dataset Gallery, License Gallery, and Debug Interface]*
 
-### 🔄 User Journey Flow
+<img width="1439" height="782" alt="image" src="https://github.com/user-attachments/assets/3252f9f6-fa4d-4384-a856-4c169ff998c1" />
+
+<img width="1440" height="775" alt="image" src="https://github.com/user-attachments/assets/c69ac09f-7273-4742-a3e1-1959ac4f6e73" />
+
+<img width="866" height="751" alt="image" src="https://github.com/user-attachments/assets/ad0edd1d-af1a-4f21-93b7-1a5b838969b6" />
+
+
+### 🔄 User Journey Flow(TODO)
 ```
 Upload Dataset → Generate License → Deploy On-Chain → Receive Authorization → Earn Royalties
      ↓              ↓                ↓                ↓                    ↓
