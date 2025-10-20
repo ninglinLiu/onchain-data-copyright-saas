@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { NextPage } from "next";
+import ReactMarkdown from "react-markdown";
 import { useAccount, useContractReads } from "wagmi";
-import { Address } from "~~/components/scaffold-eth";
-import { useDeployedContractInfo, useScaffoldContractRead } from "~~/hooks/scaffold-eth";
+import { useDeployedContractInfo } from "~~/hooks/scaffold-eth";
 import { getTargetNetwork } from "~~/utils/scaffold-eth";
 
 interface Dataset {
@@ -13,6 +14,7 @@ interface Dataset {
   uri: string;
   bodhi_id: number;
   owner: string;
+  abstract?: string;
 }
 
 const DatasetGallery: NextPage = () => {
@@ -20,101 +22,142 @@ const DatasetGallery: NextPage = () => {
   const [datasets, setDatasets] = useState<Dataset[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "my">("all");
+  const [copiedHash, setCopiedHash] = useState<string | null>(null);
+  const [imageErrors, setImageErrors] = useState<Record<number, boolean>>({});
+
+  // Get contract info
+  const { data: copyrightNFTContract } = useDeployedContractInfo("CopyrightNFT");
+  const { data: bodhiBasedCopyrightContract } = useDeployedContractInfo("BodhiBasedCopyright");
 
   // 读取 dataset 总数
-  const { data: nextTokenId } = useScaffoldContractRead({
-    contractName: "CopyrightNFT",
-    functionName: "_nextTokenId",
+  const { data: nextTokenIdResult } = useContractReads({
+    contracts: [
+      {
+        chainId: getTargetNetwork().id,
+        address: copyrightNFTContract?.address,
+        abi: copyrightNFTContract?.abi,
+        functionName: "_nextTokenId",
+      },
+    ],
+    watch: true,
+    enabled: !!copyrightNFTContract,
   });
 
-  // 获取所有 datasets
-  // Create individual hooks for first 10 datasets
-  const dataset1 = useScaffoldContractRead({
-    contractName: "BodhiBasedCopyright",
-    functionName: "getCopyright",
-    args: [BigInt(1)],
-  });
-  const dataset2 = useScaffoldContractRead({
-    contractName: "BodhiBasedCopyright",
-    functionName: "getCopyright",
-    args: [BigInt(2)],
-  });
-  const dataset3 = useScaffoldContractRead({
-    contractName: "BodhiBasedCopyright",
-    functionName: "getCopyright",
-    args: [BigInt(3)],
-  });
-  const dataset4 = useScaffoldContractRead({
-    contractName: "BodhiBasedCopyright",
-    functionName: "getCopyright",
-    args: [BigInt(4)],
-  });
-  const dataset5 = useScaffoldContractRead({
-    contractName: "BodhiBasedCopyright",
-    functionName: "getCopyright",
-    args: [BigInt(5)],
-  });
+  console.log("nextTokenIdResult", nextTokenIdResult);
 
-  // Get owners for each dataset
-  const owner1 = useScaffoldContractRead({
-    contractName: "CopyrightNFT",
-    functionName: "ownerOf",
-    args: [BigInt(1)],
-  });
-  const owner2 = useScaffoldContractRead({
-    contractName: "CopyrightNFT",
-    functionName: "ownerOf",
-    args: [BigInt(2)],
-  });
-  const owner3 = useScaffoldContractRead({
-    contractName: "CopyrightNFT",
-    functionName: "ownerOf",
-    args: [BigInt(3)],
-  });
-  const owner4 = useScaffoldContractRead({
-    contractName: "CopyrightNFT",
-    functionName: "ownerOf",
-    args: [BigInt(4)],
-  });
-  const owner5 = useScaffoldContractRead({
-    contractName: "CopyrightNFT",
-    functionName: "ownerOf",
-    args: [BigInt(5)],
-  });
+  const nextTokenId = nextTokenIdResult?.[0]?.result;
 
-  const datasetHooks = [dataset1, dataset2, dataset3, dataset4, dataset5];
-  const ownerHooks = [owner1, owner2, owner3, owner4, owner5];
+  console.log("nextTokenId", nextTokenId);
+
+  // Prepare contract read params for datasets and owners
+  const contractReadsParams = [];
+  for (let i = 1; i <= 5; i++) {
+    // Add dataset read
+    if (bodhiBasedCopyrightContract?.address && bodhiBasedCopyrightContract?.abi) {
+      contractReadsParams.push({
+        chainId: getTargetNetwork().id,
+        address: bodhiBasedCopyrightContract.address,
+        abi: bodhiBasedCopyrightContract.abi,
+        functionName: "getCopyright",
+        args: [BigInt(i)],
+      });
+    }
+
+    // Add owner read
+    if (copyrightNFTContract?.address && copyrightNFTContract?.abi) {
+      contractReadsParams.push({
+        chainId: getTargetNetwork().id,
+        address: copyrightNFTContract.address,
+        abi: copyrightNFTContract.abi,
+        functionName: "ownerOf",
+        args: [BigInt(i)],
+      });
+    }
+  }
+
+  // Batch read all datasets and owners
+  const { data: batchResults } = useContractReads({
+    contracts: contractReadsParams,
+    watch: true,
+    enabled: !!bodhiBasedCopyrightContract && !!copyrightNFTContract,
+  });
 
   useEffect(() => {
-    if (!nextTokenId) {
+    if (!nextTokenId || !batchResults) {
       setLoading(false);
       return;
     }
 
-    const fetchedDatasets: Dataset[] = datasetHooks
-      .map((hook, index) => {
-        if (!hook.data || !ownerHooks[index].data) return null;
-        const [contentHash, name, licenseId, link, bodhi_id] = hook.data;
-        return {
+    // Split results into datasets and owners inside useEffect
+    const datasetResults = batchResults.filter((_, index) => index % 2 === 0);
+    const ownerResults = batchResults.filter((_, index) => index % 2 === 1);
+
+    const fetchedDatasets = datasetResults
+      .map((data, index) => {
+        console.log("data", data);
+        // skip this one if the data["result"] is undefined
+        if (!data || !(data as any)?.result || !ownerResults[index]) return null;
+
+        const [name, link, contentHash, , uri, bodhi_id] = (data as any).result; // Skip licenseId
+        const ownerData = ownerResults[index];
+        const owner = (ownerData as any)?.result;
+
+        // Ensure owner is a string
+        if (typeof owner !== "string") return null;
+
+        const dataset: Dataset = {
           id: index + 1,
           name,
           link,
           contentHash: contentHash.toString(),
-          uri: link, // Using link as uri since they serve similar purposes
+          uri: uri, // Using uri from contract data
           bodhi_id: Number(bodhi_id),
-          owner: ownerHooks[index].data as string,
+          owner,
         };
+        return dataset;
       })
       .filter((dataset): dataset is Dataset => dataset !== null);
 
     setDatasets(fetchedDatasets);
-    // get the owner by call the contract CopyrightNFT, use the function ownerOf one by one by the NFT Id.
+
+    // Fetch abstracts for datasets with bodhi_id
+    fetchedDatasets.forEach(dataset => {
+      if (dataset.bodhi_id > 0) {
+        fetchAbstract(dataset.bodhi_id, dataset.id);
+      }
+    });
+
     setLoading(false);
-  }, [nextTokenId, datasetHooks, ownerHooks]);
+  }, [nextTokenId, batchResults]);
+
+  const fetchAbstract = async (bodhiId: number, datasetId: number) => {
+    try {
+      const response = await fetch(`https://bodhi-data.deno.dev/assets?asset_begin=${bodhiId}&asset_end=${bodhiId}`);
+      const data = await response.json();
+      if (data.assets && data.assets[0] && data.assets[0].content) {
+        // Get first 10 lines of the content
+        const lines = data.assets[0].content.split("\n");
+        const first10Lines = lines.slice(0, 10).join("\n");
+        setDatasets(prev => prev.map(ds => (ds.id === datasetId ? { ...ds, abstract: first10Lines } : ds)));
+      }
+    } catch (error) {
+      console.error(`Failed to fetch abstract for bodhi_id ${bodhiId}:`, error);
+    }
+  };
 
   const formatAddress = (address: string) => {
     if (!address) return "";
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  };
+
+  const copyToClipboard = async (text: string, id: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedHash(id);
+      setTimeout(() => setCopiedHash(null), 2000);
+    } catch (err) {
+      console.error("Failed to copy:", err);
+    }
   };
 
   const filteredDatasets = datasets;
@@ -185,10 +228,20 @@ const DatasetGallery: NextPage = () => {
               className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-gray-200"
             >
               {/* Dataset Image/Icon */}
-              <div className="bg-gradient-to-br from-blue-400 to-purple-600 h-48 flex items-center justify-center relative">
-                <div className="text-white text-6xl">📊</div>
+              <div className="bg-gradient-to-br from-blue-400 to-purple-600 h-48 flex items-center justify-center relative overflow-hidden">
+                {dataset.uri && !imageErrors[dataset.id] ? (
+                  <Image
+                    src={dataset.uri}
+                    alt={dataset.name}
+                    fill
+                    className="object-cover"
+                    onError={() => setImageErrors(prev => ({ ...prev, [dataset.id]: true }))}
+                  />
+                ) : (
+                  <div className="text-white text-6xl">📊</div>
+                )}
                 {connectedAddress && dataset.owner.toLowerCase() === connectedAddress.toLowerCase() && (
-                  <div className="absolute top-2 right-2 bg-yellow-400 text-yellow-900 px-2 py-1 rounded-full text-xs font-bold">
+                  <div className="absolute top-2 right-2 bg-yellow-400 text-yellow-900 px-2 py-1 rounded-full text-xs font-bold z-10">
                     我的
                   </div>
                 )}
@@ -197,24 +250,54 @@ const DatasetGallery: NextPage = () => {
               {/* Dataset Info */}
               <div className="p-6">
                 {/* Dataset ID */}
-                <h3 className="text-xl font-bold mb-3">Dataset {dataset.name}</h3>
+                <h3 className="text-xl font-bold mb-3">{dataset.name}</h3>
 
                 {/* Content Hash */}
-                <div className="mb-2">
+                <div className="mb-2 flex items-center">
                   <span className="text-sm text-gray-600">Content Hash:</span>
                   <span className="ml-2 text-sm font-mono">{formatAddress(dataset.contentHash)}</span>
+                  <button
+                    onClick={() => copyToClipboard(dataset.contentHash, `hash-${dataset.id}`)}
+                    className="ml-2 p-1 hover:bg-gray-100 rounded transition-colors"
+                    title="Copy full hash"
+                  >
+                    {copiedHash === `hash-${dataset.id}` ? (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4 text-green-500"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    ) : (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4 text-gray-500"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                        <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
+                      </svg>
+                    )}
+                  </button>
                 </div>
 
-                {/* URI */}
+                {/* Owner */}
                 <div className="mb-2">
-                  <span className="text-sm text-gray-600">URI:</span>
+                  <span className="text-sm text-gray-600">Owner:</span>
                   <a
-                    href={dataset.uri}
+                    href={`https://etherscan.io/address/${dataset.owner}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="ml-2 text-sm text-blue-600 hover:text-blue-800 truncate block"
                   >
-                    {dataset.uri.length > 30 ? `${dataset.uri.slice(0, 30)}...` : dataset.uri}
+                    {formatAddress(dataset.owner)}
                   </a>
                 </div>
 
@@ -227,7 +310,7 @@ const DatasetGallery: NextPage = () => {
                     rel="noopener noreferrer"
                     className="ml-2 text-sm text-blue-600 hover:text-blue-800 truncate block"
                   >
-                    {dataset.link.length > 30 ? `${dataset.link.slice(0, 30)}...` : dataset.link}
+                    {dataset.link}
                   </a>
                 </div>
 
@@ -241,25 +324,73 @@ const DatasetGallery: NextPage = () => {
                     className="ml-2 text-sm text-blue-600 hover:text-blue-800"
                   >
                     #{dataset.bodhi_id} {/* Display Bodhi ID */}
-                    {/* Debug info */}
-                    <pre className="mt-2 text-xs overflow-auto">
-                      {JSON.stringify(dataset, (_, value) =>
-                        typeof value === 'bigint' ? value.toString() : value
-                      , 2)}
-                    </pre>
                   </a>
                 </div>
 
+                {/* 摘要 */}
+                {dataset.abstract && (
+                  <div className="mb-4">
+                    <span className="text-sm text-gray-600">摘要:</span>
+                    <div className="mb-4 p-3 bg-gray-50 rounded-lg overflow-x-auto max-w-full">
+                      <ReactMarkdown
+                        components={{
+                          h1: ({ children }) => <h1 className="text-lg font-bold mb-2">{children}</h1>,
+                          h2: ({ children }) => <h2 className="text-base font-bold mb-1">{children}</h2>,
+                          h3: ({ children }) => <h3 className="text-sm font-bold mb-1">{children}</h3>,
+                          p: ({ children }) => <p className="mb-2 break-words">{children}</p>,
+                          ul: ({ children }) => <ul className="list-disc list-inside mb-2">{children}</ul>,
+                          ol: ({ children }) => <ol className="list-decimal list-inside mb-2">{children}</ol>,
+                          li: ({ children }) => <li className="mb-1 break-words">{children}</li>,
+                          a: ({ href, children }) => (
+                            <a
+                              href={href}
+                              className="text-blue-600 hover:underline break-all"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              {children}
+                            </a>
+                          ),
+                          code: ({ children }) => (
+                            <code className="bg-gray-100 px-1 rounded whitespace-pre">{children}</code>
+                          ),
+                          strong: ({ children }) => <strong className="font-bold">{children}</strong>,
+                          em: ({ children }) => <em className="italic">{children}</em>,
+                        }}
+                      >
+                        {dataset.abstract}
+                      </ReactMarkdown>
+                    </div>
+                  </div>
+                )}
+
                 {/* Action Buttons */}
                 <div className="flex gap-2 mt-4">
-                  <button className="flex-1 bg-primary hover:bg-primary-focus text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200">
-                    查看详情
-                  </button>
-                  {connectedAddress && dataset.owner.toLowerCase() !== connectedAddress.toLowerCase() && (
+                  <a href={`https://bodhi.wtf/${dataset.bodhi_id}`} target="_blank" rel="noopener noreferrer">
+                    <button className="flex-1 bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200">
+                      查看详情
+                    </button>
+                  </a>
+                  &nbsp;
+                  <a
+                    href={`https://bodhi.wtf/${dataset.bodhi_id}?action=buy`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     <button className="flex-1 bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200">
                       购买份额
                     </button>
-                  )}
+                  </a>
+                  &nbsp;
+                  <a
+                    href={`https://bodhi.wtf/${dataset.bodhi_id}?action=sell`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <button className="flex-1 bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200">
+                      卖出份额
+                    </button>
+                  </a>
                 </div>
               </div>
             </div>
@@ -268,18 +399,14 @@ const DatasetGallery: NextPage = () => {
       )}
 
       {/* Stats Section */}
-      <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-6 text-white">
           <div className="text-3xl font-bold mb-2">{datasets.length}</div>
           <div className="text-blue-100">总数据集数量</div>
         </div>
         <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-lg p-6 text-white">
-          <div className="text-3xl font-bold mb-2">{datasets.filter(d => d.bodhi_id >= 15544).length}</div>
-          <div className="text-green-100">Bodhi NFT 数量</div>
-        </div>
-        <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg p-6 text-white">
-          <div className="text-3xl font-bold mb-2">{datasets.filter(d => d.bodhi_id < 15544).length}</div>
-          <div className="text-purple-100">标准数据集</div>
+          <div className="text-3xl font-bold mb-2">{datasets.filter(d => d.bodhi_id >= 0).length}</div>
+          <div className="text-green-100">Tokenized 数据集数量</div>
         </div>
       </div>
 
@@ -298,9 +425,6 @@ const DatasetGallery: NextPage = () => {
           <div>
             <p className="mb-2">
               <strong>🪙 份额交易：</strong>通过 Bodhi1155 合约，数据集可以被分割成份额进行交易。
-            </p>
-            <p>
-              <strong>💰 创作者收益：</strong>所有交易都会向原创作者支付 5% 的费用。
             </p>
           </div>
         </div>
